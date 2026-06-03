@@ -553,10 +553,15 @@ const getMyVideos =
         await Video.find({
           userId:
             req.user.id,
-        }).sort({
-          createdAt:
-            -1,
-        });
+        })
+          .populate(
+            "userId",
+            "fullName username profilePic"
+          )
+          .sort({
+            createdAt:
+              -1,
+          });
 
       res.status(
         200
