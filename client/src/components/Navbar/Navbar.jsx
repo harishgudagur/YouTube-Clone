@@ -256,6 +256,10 @@ function Navbar() {
                     user.profilePic
                   }
                   alt="profile"
+                  onError={(e) => {
+                    e.target.style.display =
+                      "none";
+                  }}
                   style={{
                     width:
                       "42px",

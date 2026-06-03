@@ -35,9 +35,12 @@ const uploadVideo =
       }
 
       const baseUrl =
-        `${req.protocol}://${req.get(
-          "host"
-        )}`;
+  process.env.NODE_ENV ===
+  "production"
+    ? "https://youtube-clone-xaye.onrender.com"
+    : `${req.protocol}://${req.get(
+        "host"
+      )}`;
 
       const videoUrl =
         `${baseUrl}/uploads/${videoFile.filename}`;

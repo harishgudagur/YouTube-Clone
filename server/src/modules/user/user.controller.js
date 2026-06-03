@@ -57,10 +57,14 @@ const updateProfile =
 
       if (req.file) {
   const baseUrl =
-    `${req.protocol}://${req.get(
-      "host"
-    )}`;
+  process.env.NODE_ENV ===
+  "production"
+    ? "https://youtube-clone-xaye.onrender.com"
+    : `${req.protocol}://${req.get(
+        "host"
+      )}`;
 
+      
   user.profilePic =
     `${baseUrl}/uploads/${req.file.filename}`;
 }

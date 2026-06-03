@@ -124,8 +124,18 @@ function Profile() {
         localStorage.setItem(
           "user",
           JSON.stringify(
-            res.data
+            {
+              ...user,
+              ...res.data,
+            }
           )
+        );
+
+        setUser(
+          {
+            ...user,
+            ...res.data,
+          }
         );
 
         setUser(res.data);
