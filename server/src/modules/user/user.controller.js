@@ -55,12 +55,15 @@ const updateProfile =
           "";
       }
 
-      if (
-        req.file
-      ) {
-        user.profilePic =
-          `http://localhost:5000/uploads/${req.file.filename}`;
-      }
+      if (req.file) {
+  const baseUrl =
+    `${req.protocol}://${req.get(
+      "host"
+    )}`;
+
+  user.profilePic =
+    `${baseUrl}/uploads/${req.file.filename}`;
+}
 
       await user.save();
 
