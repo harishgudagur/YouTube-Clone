@@ -1,4 +1,3 @@
-
 import {
   useState,
 } from "react";
@@ -9,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import toast
-  from "react-hot-toast";
+from "react-hot-toast";
 
 import {
   FaYoutube,
@@ -21,6 +20,7 @@ import {
 
 import {
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 
 import {
@@ -30,7 +30,7 @@ import {
 } from "../firebase";
 
 import API
-  from "../services/api";
+from "../services/api";
 
 function Signup() {
   const navigate =
@@ -49,6 +49,11 @@ function Signup() {
   const [
     loading,
     setLoading,
+  ] = useState(false);
+
+  const [
+    oauthLoading,
+    setOauthLoading,
   ] = useState(false);
 
   const [
@@ -106,7 +111,32 @@ function Signup() {
     async (
       provider
     ) => {
+      if (
+        oauthLoading
+      )
+        return;
+
       try {
+        setOauthLoading(
+          true
+        );
+
+        await signOut(
+          auth
+        );
+
+        if (
+          provider ===
+          googleProvider
+        ) {
+          googleProvider.setCustomParameters(
+            {
+              prompt:
+                "select_account",
+            }
+          );
+        }
+
         const result =
           await signInWithPopup(
             auth,
@@ -116,35 +146,49 @@ function Signup() {
         const firebaseUser =
           result.user;
 
-        const response =
-          await API.post(
-            "/auth/oauth",
-            {
-              email:
-                firebaseUser.email,
+        await API.post(
+          "/auth/oauth",
+          {
+            email:
+              firebaseUser.email,
 
-              fullName:
-                firebaseUser.displayName,
+            fullName:
+              firebaseUser.displayName,
 
-              profilePic:
-                firebaseUser.photoURL,
-            }
-          );
+            profilePic:
+              firebaseUser.photoURL,
+          }
+        );
+
+        await signOut(
+          auth
+        );
 
         toast.success(
           "Signup Successful. Please login"
         );
 
-        navigate("/login");
+        navigate(
+          "/login"
+        );
       } catch (
         error
       ) {
-        console.log(
-          error
-        );
+        if (
+          error.code !==
+          "auth/cancelled-popup-request"
+        ) {
+          console.log(
+            error
+          );
 
-        toast.error(
-          "OAuth signup failed"
+          toast.error(
+            "OAuth signup failed"
+          );
+        }
+      } finally {
+        setOauthLoading(
+          false
         );
       }
     };
@@ -182,7 +226,6 @@ function Signup() {
             "0 8px 30px rgba(0,0,0,0.08)",
         }}
       >
-        {/* Header */}
         <div
           style={{
             textAlign:
@@ -217,7 +260,6 @@ function Signup() {
           </p>
         </div>
 
-        {/* OAuth Buttons */}
         <div
           style={{
             display:
@@ -230,37 +272,17 @@ function Signup() {
         >
           <button
             type="button"
+            disabled={
+              oauthLoading
+            }
             onClick={() =>
               handleOAuthSignup(
                 googleProvider
               )
             }
-            style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              border:
-                "1px solid #ddd",
-              borderRadius:
-                "14px",
-              background:
-                "#fff",
-              cursor:
-                "pointer",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              gap:
-                "10px",
-              fontWeight:
-                "600",
-              fontSize:
-                "15px",
-            }}
+            style={
+              oauthButtonStyle
+            }
           >
             <FaGoogle
               color="#EA4335"
@@ -270,38 +292,20 @@ function Signup() {
 
           <button
             type="button"
+            disabled={
+              oauthLoading
+            }
             onClick={() =>
               handleOAuthSignup(
                 githubProvider
               )
             }
             style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              border:
-                "none",
-              borderRadius:
-                "14px",
+              ...oauthButtonStyle,
               background:
                 "#181818",
               color:
                 "#fff",
-              cursor:
-                "pointer",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              gap:
-                "10px",
-              fontWeight:
-                "600",
-              fontSize:
-                "15px",
             }}
           >
             <FaGithub />
@@ -309,7 +313,6 @@ function Signup() {
           </button>
         </div>
 
-        {/* Divider */}
         <div
           style={{
             display:
@@ -350,7 +353,6 @@ function Signup() {
           />
         </div>
 
-        {/* Form */}
         <form
           onSubmit={
             handleSubmit
@@ -446,28 +448,7 @@ function Signup() {
             disabled={
               loading
             }
-            style={{
-              width:
-                "100%",
-              padding:
-                "15px",
-              marginTop:
-                "22px",
-              border:
-                "none",
-              borderRadius:
-                "14px",
-              background:
-                "#ff0000",
-              color:
-                "#fff",
-              fontSize:
-                "16px",
-              fontWeight:
-                "bold",
-              cursor:
-                "pointer",
-            }}
+            style={buttonStyle}
           >
             {loading
               ? "Creating..."
@@ -504,24 +485,57 @@ function Signup() {
   );
 }
 
-const inputStyle =
-{
-  width:
-    "100%",
-  padding:
-    "15px",
-  marginBottom:
-    "14px",
+const inputStyle = {
+  width: "100%",
+  padding: "15px",
+  marginBottom: "14px",
   border:
     "1px solid #ddd",
   borderRadius:
     "14px",
-  outline:
-    "none",
-  fontSize:
-    "15px",
+  outline: "none",
+  fontSize: "15px",
   background:
     "#fafafa",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "15px",
+  marginTop: "22px",
+  border: "none",
+  borderRadius:
+    "14px",
+  background:
+    "#ff0000",
+  color: "#fff",
+  fontSize: "16px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const oauthButtonStyle = {
+  width: "100%",
+  padding: "14px",
+  border:
+    "1px solid #ddd",
+  borderRadius:
+    "14px",
+  background:
+    "#fff",
+  cursor:
+    "pointer",
+  display:
+    "flex",
+  alignItems:
+    "center",
+  justifyContent:
+    "center",
+  gap: "10px",
+  fontWeight:
+    "600",
+  fontSize:
+    "15px",
 };
 
 export default Signup;

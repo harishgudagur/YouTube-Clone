@@ -1,4 +1,3 @@
-
 import {
   useState,
 } from "react";
@@ -18,6 +17,7 @@ import {
 
 import {
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 
 import {
@@ -27,10 +27,10 @@ import {
 } from "../firebase";
 
 import API
-  from "../services/api";
+from "../services/api";
 
 import toast
-  from "react-hot-toast";
+from "react-hot-toast";
 
 function Login() {
   const navigate =
@@ -47,6 +47,11 @@ function Login() {
   const [
     loading,
     setLoading,
+  ] = useState(false);
+
+  const [
+    oauthLoading,
+    setOauthLoading,
   ] = useState(false);
 
   const [
@@ -80,15 +85,13 @@ function Login() {
 
         localStorage.setItem(
           "token",
-          response.data
-            .token
+          response.data.token
         );
 
         localStorage.setItem(
           "user",
           JSON.stringify(
-            response.data
-              .user
+            response.data.user
           )
         );
 
@@ -117,7 +120,32 @@ function Login() {
     async (
       provider
     ) => {
+      if (
+        oauthLoading
+      )
+        return;
+
       try {
+        setOauthLoading(
+          true
+        );
+
+        await signOut(
+          auth
+        );
+
+        if (
+          provider ===
+          googleProvider
+        ) {
+          googleProvider.setCustomParameters(
+            {
+              prompt:
+                "select_account",
+            }
+          );
+        }
+
         const result =
           await signInWithPopup(
             auth,
@@ -144,15 +172,13 @@ function Login() {
 
         localStorage.setItem(
           "token",
-          response.data
-            .token
+          response.data.token
         );
 
         localStorage.setItem(
           "user",
           JSON.stringify(
-            response.data
-              .user
+            response.data.user
           )
         );
 
@@ -164,12 +190,21 @@ function Login() {
       } catch (
         error
       ) {
-        console.log(
-          error
-        );
+        if (
+          error.code !==
+          "auth/cancelled-popup-request"
+        ) {
+          console.log(
+            error
+          );
 
-        toast.error(
-          "OAuth login failed"
+          toast.error(
+            "OAuth login failed"
+          );
+        }
+      } finally {
+        setOauthLoading(
+          false
         );
       }
     };
@@ -247,20 +282,7 @@ function Login() {
               handleChange
             }
             required
-            style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              marginBottom:
-                "16px",
-              border:
-                "1px solid #ddd",
-              borderRadius:
-                "12px",
-              outline:
-                "none",
-            }}
+            style={inputStyle}
           />
 
           <div
@@ -281,18 +303,9 @@ function Login() {
                 handleChange
               }
               required
-              style={{
-                width:
-                  "100%",
-                padding:
-                  "14px",
-                border:
-                  "1px solid #ddd",
-                borderRadius:
-                  "12px",
-                outline:
-                  "none",
-              }}
+              style={
+                inputStyle
+              }
             />
 
             <span
@@ -325,28 +338,7 @@ function Login() {
             disabled={
               loading
             }
-            style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              marginTop:
-                "25px",
-              border:
-                "none",
-              borderRadius:
-                "14px",
-              background:
-                "#ff0000",
-              color:
-                "#fff",
-              fontSize:
-                "16px",
-              fontWeight:
-                "bold",
-              cursor:
-                "pointer",
-            }}
+            style={buttonStyle}
           >
             {loading
               ? "Logging in..."
@@ -376,8 +368,6 @@ function Login() {
                 "0 12px",
               color:
                 "#777",
-              fontSize:
-                "14px",
             }}
           >
             OR
@@ -402,35 +392,17 @@ function Login() {
         >
           <button
             type="button"
+            disabled={
+              oauthLoading
+            }
             onClick={() =>
               handleOAuthLogin(
                 googleProvider
               )
             }
-            style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              border:
-                "1px solid #ddd",
-              borderRadius:
-                "14px",
-              background:
-                "#fff",
-              cursor:
-                "pointer",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              gap:
-                "10px",
-              fontWeight:
-                "bold",
-            }}
+            style={
+              oauthButtonStyle
+            }
           >
             <FaGoogle />
             Continue with Google
@@ -438,36 +410,20 @@ function Login() {
 
           <button
             type="button"
+            disabled={
+              oauthLoading
+            }
             onClick={() =>
               handleOAuthLogin(
                 githubProvider
               )
             }
             style={{
-              width:
-                "100%",
-              padding:
-                "14px",
-              border:
-                "1px solid #ddd",
-              borderRadius:
-                "14px",
+              ...oauthButtonStyle,
               background:
                 "#181818",
               color:
                 "#fff",
-              cursor:
-                "pointer",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              gap:
-                "10px",
-              fontWeight:
-                "bold",
             }}
           >
             <FaGithub />
@@ -493,5 +449,49 @@ function Login() {
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "14px",
+  marginBottom: "16px",
+  border:
+    "1px solid #ddd",
+  borderRadius:
+    "12px",
+  outline: "none",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "14px",
+  marginTop: "25px",
+  border: "none",
+  borderRadius: "14px",
+  background:
+    "#ff0000",
+  color: "#fff",
+  fontSize: "16px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const oauthButtonStyle = {
+  width: "100%",
+  padding: "14px",
+  border:
+    "1px solid #ddd",
+  borderRadius:
+    "14px",
+  background:
+    "#fff",
+  cursor: "pointer",
+  display: "flex",
+  alignItems:
+    "center",
+  justifyContent:
+    "center",
+  gap: "10px",
+  fontWeight: "bold",
+};
 
 export default Login;
