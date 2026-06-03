@@ -55,9 +55,7 @@ function App() {
       <Route
         path="/"
         element={
-          user
-            ? <Home />
-            : <Signup />
+         <Home />
         }
       />
 

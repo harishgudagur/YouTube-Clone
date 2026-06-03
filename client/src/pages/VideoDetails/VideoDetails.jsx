@@ -84,7 +84,7 @@ function VideoDetails() {
     JSON.parse(
       localStorage.getItem(
         "user"
-      )
+      ) || "null"
     );
 
   useEffect(() => {

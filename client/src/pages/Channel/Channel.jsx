@@ -47,7 +47,7 @@ function Channel() {
     JSON.parse(
       localStorage.getItem(
         "user"
-      )
+      ) || "null"
     );
 
   useEffect(() => {

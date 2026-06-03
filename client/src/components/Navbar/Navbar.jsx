@@ -29,11 +29,11 @@ function Navbar() {
     );
 
   const user =
-    JSON.parse(
-      localStorage.getItem(
-        "user"
-      )
-    );
+  JSON.parse(
+    localStorage.getItem(
+      "user"
+    ) || "null"
+  );
 
   const handleSearch =
     () => {

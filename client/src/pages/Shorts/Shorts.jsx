@@ -180,7 +180,7 @@ const user =
   JSON.parse(
     localStorage.getItem(
       "user"
-    )
+    ) || "null"
   );
 
 const subscribedMap =
@@ -194,9 +194,9 @@ shorts.forEach(
     subscribedMap[
       channelId
     ] =
-      user?.subscribedChannels?.includes(
-        channelId
-      ) || false;
+      (
+  user?.subscribedChannels || []
+).includes(channelId) || false;
   }
 );
 
