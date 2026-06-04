@@ -1,14 +1,8 @@
-
 const express =
   require("express");
 
-app.use(
-  cors({
-    origin:
-      "https://you-tube-clone-delta-tan.vercel.app",
-    credentials: true,
-  })
-);
+const cors =
+  require("cors");
 
 const cookieParser =
   require(
@@ -52,11 +46,33 @@ const userRoutes =
 const app =
   express();
 
+/* Middleware */
 app.use(
-  express.json()
+  express.json({
+    limit:
+      "500mb",
+  })
 );
 
-app.use(cors());
+app.use(
+  express.urlencoded(
+    {
+      extended:
+        true,
+      limit:
+        "500mb",
+    }
+  )
+);
+
+app.use(
+  cors({
+    origin:
+      "https://you-tube-clone-delta-tan.vercel.app",
+    credentials:
+      true,
+  })
+);
 
 app.use(
   cookieParser()
@@ -73,7 +89,7 @@ app.use(
   morgan("dev")
 );
 
-// Serve uploads
+/* Serve uploads */
 app.use(
   "/uploads",
   express.static(
@@ -84,7 +100,7 @@ app.use(
   )
 );
 
-// Routes
+/* Routes */
 app.use(
   "/api/auth",
   authRoutes
@@ -110,6 +126,7 @@ app.use(
   userRoutes
 );
 
+/* Health route */
 app.get(
   "/",
   (
@@ -124,4 +141,3 @@ app.get(
 
 module.exports =
   app;
-
