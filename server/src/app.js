@@ -67,10 +67,8 @@ app.use(
 
 app.use(
   cors({
-    origin:
-      "https://you-tube-clone-delta-tan.vercel.app",
-    credentials:
-      true,
+    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, "") : "http://localhost:5173",
+    credentials: true,
   })
 );
 

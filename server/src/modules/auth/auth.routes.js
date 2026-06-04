@@ -3,38 +3,32 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  sendEmailOTP,
+  sendPhoneOTP,
+  verifyOTP,
   signup,
   login,
-  profile,
-  sendOtp,
-  verifyOtp,
   forgotPassword,
   resetPassword,
-  oauthLogin,
+  refreshToken,
+  logout,
+  getCurrentUser,
 } = require("./auth.controller");
 
 const protect = require("../../middlewares/auth.middleware");
 
+// Public Routes
+router.post("/send-email-otp", sendEmailOTP);
+router.post("/send-phone-otp", sendPhoneOTP);
+router.post("/verify-otp", verifyOTP);
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/otp", sendOtp);
-router.post("/verify-otp", verifyOtp);
-router.post(
-  "/forgot-password",
-  forgotPassword
-);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+router.post("/refresh-token", refreshToken);
+router.post("/logout", logout);
 
-router.post(
-  "/reset-password/:token",
-  resetPassword
-);
-
-router.post(
-  "/oauth",
-  oauthLogin
-);
-
-// Protected Route
-router.get("/profile", protect, profile);
+// Protected Routes
+router.get("/me", protect, getCurrentUser);
 
 module.exports = router;

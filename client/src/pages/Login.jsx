@@ -1,497 +1,111 @@
-import {
-  useState,
-} from "react";
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
-import {
-  useNavigate,
-  Link,
-} from "react-router-dom";
-
-import {
-  FaYoutube,
-  FaEye,
-  FaEyeSlash,
-  FaGoogle,
-  FaGithub,
-} from "react-icons/fa";
-
-import {
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
-
-import {
-  auth,
-  googleProvider,
-  githubProvider,
-} from "../firebase";
-
-import API
-from "../services/api";
-
-import toast
-from "react-hot-toast";
-
-function Login() {
-  const navigate =
-    useNavigate();
-
-  const [
-    formData,
-    setFormData,
-  ] = useState({
-    email: "",
-    password: "",
+const Login = () => {
+  const [formData, setFormData] = useState({
+    identifier: '',
+    password: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-  const [
-    oauthLoading,
-    setOauthLoading,
-  ] = useState(false);
+  // Handle input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  const [
-    showPassword,
-    setShowPassword,
-  ] = useState(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  const handleChange =
-    (e) => {
-      setFormData({
-        ...formData,
-        [e.target.name]:
-          e.target.value,
-      });
-    };
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        identifier: formData.identifier,
+        password: formData.password
+      }, { withCredentials: true });
 
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault();
+      if (response.data.success) {
+        // Standardize key name as 'token'
+        localStorage.setItem('token', response.data.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
 
-      try {
-        setLoading(
-          true
-        );
-
-        const response =
-          await API.post(
-            "/auth/login",
-            formData
-          );
-
-        localStorage.setItem(
-          "token",
-          response.data.token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(
-            response.data.user
-          )
-        );
-
-        toast.success(
-          "Login Successful"
-        );
-
-        navigate("/");
-      } catch (
-        error
-      ) {
-        toast.error(
-          error.response
-            ?.data
-            ?.message ||
-            "Login failed"
-        );
-      } finally {
-        setLoading(
-          false
-        );
+        navigate('/');
       }
-    };
-
-  const handleOAuthLogin =
-    async (
-      provider
-    ) => {
-      if (
-        oauthLoading
-      )
-        return;
-
-      try {
-        setOauthLoading(
-          true
-        );
-
-        await signOut(
-          auth
-        );
-
-        if (
-          provider ===
-          googleProvider
-        ) {
-          googleProvider.setCustomParameters(
-            {
-              prompt:
-                "select_account",
-            }
-          );
-        }
-
-        const result =
-          await signInWithPopup(
-            auth,
-            provider
-          );
-
-        const firebaseUser =
-          result.user;
-
-        const response =
-          await API.post(
-            "/auth/oauth",
-            {
-              email:
-                firebaseUser.email,
-
-              fullName:
-                firebaseUser.displayName,
-
-              profilePic:
-                firebaseUser.photoURL,
-            }
-          );
-
-        localStorage.setItem(
-          "token",
-          response.data.token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(
-            response.data.user
-          )
-        );
-
-        toast.success(
-          "Login Successful"
-        );
-
-        navigate("/");
-      } catch (
-        error
-      ) {
-        if (
-          error.code !==
-          "auth/cancelled-popup-request"
-        ) {
-          console.log(
-            error
-          );
-
-          toast.error(
-            "OAuth login failed"
-          );
-        }
-      } finally {
-        setOauthLoading(
-          false
-        );
-      }
-    };
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div
-      style={{
-        minHeight:
-          "100vh",
-        display:
-          "flex",
-        justifyContent:
-          "center",
-        alignItems:
-          "center",
-        background:
-          "#f9f9f9",
-        padding:
-          "20px",
-      }}
-    >
-      <div
-        style={{
-          width:
-            "100%",
-          maxWidth:
-            "420px",
-          background:
-            "#fff",
-          padding:
-            "40px",
-          borderRadius:
-            "20px",
-          boxShadow:
-            "0 4px 20px rgba(0,0,0,0.08)",
-        }}
-      >
-        <div
-          style={{
-            textAlign:
-              "center",
-            marginBottom:
-              "30px",
-          }}
-        >
-          <FaYoutube
-            size={55}
-            color="red"
-          />
-
-          <h1>
-            Login
-          </h1>
-
-          <p
-            style={{
-              color:
-                "gray",
-            }}
-          >
-            Welcome back
-          </p>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-red-600">YouTube</h1>
+          <p className="text-gray-400 mt-2">Sign in to your account</p>
         </div>
 
-        <form
-          onSubmit={
-            handleSubmit
-          }
-        >
+        {error && (
+          <div className="mb-4 p-4 bg-red-500 bg-opacity-20 border border-red-500 rounded text-red-200">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={
-              handleChange
-            }
+            type="text"
+            name="identifier"
+            placeholder="Email or Phone Number"
+            value={formData.identifier}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
             required
-            style={inputStyle}
           />
 
-          <div
-            style={{
-              position:
-                "relative",
-            }}
-          >
-            <input
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
-              name="password"
-              placeholder="Password"
-              onChange={
-                handleChange
-              }
-              required
-              style={
-                inputStyle
-              }
-            />
-
-            <span
-              onClick={() =>
-                setShowPassword(
-                  !showPassword
-                )
-              }
-              style={{
-                position:
-                  "absolute",
-                right:
-                  "15px",
-                top:
-                  "16px",
-                cursor:
-                  "pointer",
-              }}
-            >
-              {showPassword ? (
-                <FaEyeSlash />
-              ) : (
-                <FaEye />
-              )}
-            </span>
-          </div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
+            required
+          />
 
           <button
             type="submit"
-            disabled={
-              loading
-            }
-            style={buttonStyle}
+            disabled={loading}
+            className="w-full bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 disabled:opacity-50"
           >
-            {loading
-              ? "Logging in..."
-              : "Login"}
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
+
+          <div className="flex justify-between items-center text-sm mt-4">
+            <Link to="/forgot-password" className="text-red-500 hover:underline">
+              Forgot Password?
+            </Link>
+            <p className="text-gray-400">
+              New user?{' '}
+              <Link to="/signup" className="text-red-600 hover:underline">
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </form>
-
-        <div
-          style={{
-            display:
-              "flex",
-            alignItems:
-              "center",
-            margin:
-              "20px 0",
-          }}
-        >
-          <hr
-            style={{
-              flex: 1,
-            }}
-          />
-
-          <span
-            style={{
-              margin:
-                "0 12px",
-              color:
-                "#777",
-            }}
-          >
-            OR
-          </span>
-
-          <hr
-            style={{
-              flex: 1,
-            }}
-          />
-        </div>
-
-        <div
-          style={{
-            display:
-              "flex",
-            flexDirection:
-              "column",
-            gap:
-              "12px",
-          }}
-        >
-          <button
-            type="button"
-            disabled={
-              oauthLoading
-            }
-            onClick={() =>
-              handleOAuthLogin(
-                googleProvider
-              )
-            }
-            style={
-              oauthButtonStyle
-            }
-          >
-            <FaGoogle />
-            Continue with Google
-          </button>
-
-          <button
-            type="button"
-            disabled={
-              oauthLoading
-            }
-            onClick={() =>
-              handleOAuthLogin(
-                githubProvider
-              )
-            }
-            style={{
-              ...oauthButtonStyle,
-              background:
-                "#181818",
-              color:
-                "#fff",
-            }}
-          >
-            <FaGithub />
-            Continue with GitHub
-          </button>
-        </div>
-
-        <p
-          style={{
-            textAlign:
-              "center",
-            marginTop:
-              "20px",
-          }}
-        >
-          Don't have an
-          account?{" "}
-          <Link to="/signup">
-            Signup
-          </Link>
-        </p>
       </div>
     </div>
   );
-}
-
-const inputStyle = {
-  width: "100%",
-  padding: "14px",
-  marginBottom: "16px",
-  border:
-    "1px solid #ddd",
-  borderRadius:
-    "12px",
-  outline: "none",
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "14px",
-  marginTop: "25px",
-  border: "none",
-  borderRadius: "14px",
-  background:
-    "#ff0000",
-  color: "#fff",
-  fontSize: "16px",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-const oauthButtonStyle = {
-  width: "100%",
-  padding: "14px",
-  border:
-    "1px solid #ddd",
-  borderRadius:
-    "14px",
-  background:
-    "#fff",
-  cursor: "pointer",
-  display: "flex",
-  alignItems:
-    "center",
-  justifyContent:
-    "center",
-  gap: "10px",
-  fontWeight: "bold",
 };
 
 export default Login;
