@@ -21,7 +21,6 @@ const protect = require("../../middlewares/auth.middleware");
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
 
 // Protected Routes
