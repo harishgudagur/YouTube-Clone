@@ -18,13 +18,9 @@ const {
 const protect = require("../../middlewares/auth.middleware");
 
 // Public Routes
-router.post("/send-email-otp", sendEmailOTP);
-router.post("/send-phone-otp", sendPhoneOTP);
-router.post("/verify-otp", verifyOTP);
+
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
 router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
 
