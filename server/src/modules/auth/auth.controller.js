@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const User = require('../models/User');
+const User =
+  require(
+    "../user/user.model"
+  );
 const OTP = require('../models/OTP');
 const PasswordReset = require('../models/PasswordReset');
 const { sendEmailOTP, sendPhoneOTP, verifyOTP, sendPasswordResetEmail, sendWelcomeEmail } = require('../services/otpService');
