@@ -1,73 +1,67 @@
 const multer =
   require("multer");
 
-const path =
-  require("path");
+const {
+  CloudinaryStorage,
+} = require(
+  "multer-storage-cloudinary"
+);
 
-const fs =
-  require("fs");
-
-// uploads folder
-const uploadPath =
-  path.join(
-    __dirname,
-    "../../uploads"
+const cloudinary =
+  require(
+    "../config/cloudinary"
   );
 
-if (
-  !fs.existsSync(
-    uploadPath
-  )
-) {
-  fs.mkdirSync(
-    uploadPath,
+const storage =
+  new CloudinaryStorage(
     {
-      recursive:
-        true,
+      cloudinary,
+
+      params:
+        async (
+          req,
+          file
+        ) => {
+          if (
+            file.fieldname ===
+            "video"
+          ) {
+            return {
+              folder:
+                "youtube-clone/videos",
+
+              resource_type:
+                "video",
+
+              allowed_formats:
+                [
+                  "mp4",
+                  "mov",
+                  "webm",
+                  "mkv",
+                ],
+            };
+          }
+
+          return {
+            folder:
+              "youtube-clone/images",
+
+            resource_type:
+              "image",
+
+            allowed_formats:
+              [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+              ],
+          };
+        },
     }
   );
-}
 
-// storage config
-const storage =
-  multer.diskStorage({
-    destination:
-      (
-        req,
-        file,
-        cb
-      ) => {
-        cb(
-          null,
-          uploadPath
-        );
-      },
-
-    filename:
-      (
-        req,
-        file,
-        cb
-      ) => {
-        const uniqueName =
-          Date.now() +
-          "-" +
-          Math.round(
-            Math.random() *
-              1e9
-          ) +
-          path.extname(
-            file.originalname
-          );
-
-        cb(
-          null,
-          uniqueName
-        );
-      },
-  });
-
-// file filter
 const fileFilter =
   (
     req,
@@ -92,7 +86,9 @@ const fileFilter =
 
     if (
       file.fieldname ===
-      "thumbnail"
+        "thumbnail" ||
+      file.fieldname ===
+        "profilePic"
     ) {
       if (
         allowedImageTypes.includes(
@@ -106,7 +102,7 @@ const fileFilter =
       } else {
         cb(
           new Error(
-            "Only image files allowed for thumbnail"
+            "Only image files allowed"
           ),
           false
         );
@@ -132,27 +128,6 @@ const fileFilter =
           false
         );
       }
-    } else if (
-      file.fieldname ===
-      "profilePic"
-    ) {
-      if (
-        allowedImageTypes.includes(
-          file.mimetype
-        )
-      ) {
-        cb(
-          null,
-          true
-        );
-      } else {
-        cb(
-          new Error(
-            "Only image allowed for profile picture"
-          ),
-          false
-        );
-      }
     } else {
       cb(
         null,
@@ -165,12 +140,13 @@ const upload =
   multer({
     storage,
     fileFilter,
+
     limits: {
       fileSize:
         500 *
         1024 *
         1024,
-    }, // 500MB
+    },
   });
 
 module.exports =

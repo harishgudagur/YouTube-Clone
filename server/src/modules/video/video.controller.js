@@ -34,20 +34,12 @@ const uploadVideo =
           });
       }
 
-      const baseUrl =
-  process.env.NODE_ENV ===
-  "production"
-    ? "https://youtube-clone-xaye.onrender.com"
-    : `${req.protocol}://${req.get(
-        "host"
-      )}`;
-
       const videoUrl =
-        `${baseUrl}/uploads/${videoFile.filename}`;
+        videoFile.path;
 
       const thumbnail =
         thumbnailFile
-          ? `${baseUrl}/uploads/${thumbnailFile.filename}`
+          ? thumbnailFile.path
           : "";
 
       const newVideo =

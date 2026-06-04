@@ -8,7 +8,6 @@ const Video =
     "../video/video.model"
   );
 
-
 // Update Profile
 const updateProfile =
   async (
@@ -30,7 +29,7 @@ const updateProfile =
           });
       }
 
-      // update text fields
+      // Update text fields
       if (
         req.body.fullName
       ) {
@@ -45,7 +44,7 @@ const updateProfile =
           req.body.username;
       }
 
-      // update profile image
+      // Remove profile pic
       if (
         req.body
           .removeProfilePic ===
@@ -55,19 +54,13 @@ const updateProfile =
           "";
       }
 
-      if (req.file) {
-  const baseUrl =
-  process.env.NODE_ENV ===
-  "production"
-    ? "https://youtube-clone-xaye.onrender.com"
-    : `${req.protocol}://${req.get(
-        "host"
-      )}`;
-
-      
-  user.profilePic =
-    `${baseUrl}/uploads/${req.file.filename}`;
-}
+      // Cloudinary profile upload
+      if (
+        req.file
+      ) {
+        user.profilePic =
+          req.file.path;
+      }
 
       await user.save();
 
@@ -91,7 +84,6 @@ const updateProfile =
   };
 
 // Subscribe / Unsubscribe
-
 const subscribeChannel =
   async (
     req,
@@ -203,9 +195,6 @@ const subscribeChannel =
     }
   };
 
-
-
-
 // Get subscription feed
 const getSubscriptionsFeed =
   async (
@@ -275,8 +264,7 @@ const getSubscriptionsFeed =
     }
   };
 
-
-
+// Get Channel
 const getChannel =
   async (
     req,
@@ -309,12 +297,12 @@ const getChannel =
           }
         );
 
-      res.status(200).json(
-        {
-          user,
-          videos,
-        }
-      );
+      res.status(
+        200
+      ).json({
+        user,
+        videos,
+      });
     } catch (
       error
     ) {
@@ -322,15 +310,14 @@ const getChannel =
         error
       );
 
-      res.status(500).json(
-        {
-          message:
-            "Failed to load channel",
-        }
-      );
+      res.status(
+        500
+      ).json({
+        message:
+          "Failed to load channel",
+      });
     }
   };
-
 
 module.exports =
   {
