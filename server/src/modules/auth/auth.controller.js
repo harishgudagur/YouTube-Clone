@@ -4,8 +4,8 @@ const User =
   require(
     "../user/user.model"
   );
-const OTP = require('../models/OTP');
-const PasswordReset = require('../models/PasswordReset');
+const OTP = require('./auth.model');
+const PasswordReset = require('./resetToken.model');
 const { sendEmailOTP, sendPhoneOTP, verifyOTP, sendPasswordResetEmail, sendWelcomeEmail } = require('../services/otpService');
 
 // Generate JWT Token
