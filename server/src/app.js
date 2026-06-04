@@ -2,8 +2,13 @@
 const express =
   require("express");
 
-const cors =
-  require("cors");
+app.use(
+  cors({
+    origin:
+      "https://you-tube-clone-delta-tan.vercel.app",
+    credentials: true,
+  })
+);
 
 const cookieParser =
   require(

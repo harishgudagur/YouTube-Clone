@@ -575,7 +575,7 @@ const handleLike =
                 <div
                   style={{
                     position: "relative",
-                    width: "360px",
+                    width: "420px",
                     maxWidth: "90vw",
                     display: "flex",
                     justifyContent: "center",
@@ -667,69 +667,104 @@ const handleLike =
                   )}
 
                   <video
-                  autoPlay
-                    ref={(
-                      el
-                    ) =>
-                      (videoRefs.current[
-                        index
-                      ] = el)
-                    }
-                    muted={
-                      index ===
-                      activeVideo
-                        ? muted
-                        : true
-                    }
-                    loop
-                    playsInline
-                    onClick={() =>
-                      handleTap(
-                        index,
-                        video._id
-                      )
-                    }
-                    onTimeUpdate={(
-                      e
-                    ) => {
-                      const current =
-                        e.target
-                          .currentTime;
+  ref={(el) =>
+    (videoRefs.current[
+      index
+    ] = el)
+  }
+  autoPlay
+  muted={
+    index ===
+    activeVideo
+      ? muted
+      : true
+  }
+  loop
+  playsInline
+  preload="auto"
+  webkit-playsinline="true"
+  controls={false}
+  onLoadedMetadata={(
+    e
+  ) => {
+    const videoEl =
+      e.target;
 
-                      const duration =
-                        e.target
-                          .duration;
+    if (
+      index ===
+      activeVideo
+    ) {
+      videoEl
+        .play()
+        .catch(
+          () => {}
+        );
+    }
+  }}
+  onClick={() =>
+    handleTap(
+      index,
+      video._id
+    )
+  }
+  onTimeUpdate={(
+    e
+  ) => {
+    const current =
+      e.target
+        .currentTime;
 
-                      setProgress(
-                        (prev) => ({
-                          ...prev,
-                          [video._id]:
-                            (
-                              current /
-                              duration
-                            ) * 100,
-                        })
-                      );
-                    }}
-                    style={{
-                      width: "420px",
-                      height: "84vh",
-                      borderRadius: "24px",
-                      objectFit: "cover",
-                      background: "#111",
-                      cursor: "pointer",
-                      boxShadow:
-                        "0 0 30px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    <source
-                      src={
-                        video.videoUrl
-                      }
-                      type="video/mp4"
-                    />
-                  </video>
+    const duration =
+      e.target
+        .duration;
 
+    setProgress(
+      (prev) => ({
+        ...prev,
+        [video._id]:
+          duration
+            ? (
+                current /
+                duration
+              ) *
+              100
+            : 0,
+      })
+    );
+  }}
+  style={{
+    width: "100%",
+    maxWidth:
+      "420px",
+
+    height:
+      "84vh",
+
+    borderRadius:
+      "24px",
+
+    objectFit:
+      "contain",
+
+    background:
+      "#000",
+
+    cursor:
+      "pointer",
+
+    boxShadow:
+      "0 0 30px rgba(0,0,0,0.5)",
+  }}
+>
+  <source
+    src={video.videoUrl?.trim()}
+    type="video/mp4"
+  />
+
+  Your browser
+  does not
+  support video.
+</video>
                   {/* Pause */}
                   {paused[
                     video._id
@@ -800,7 +835,7 @@ const handleLike =
                             "50%",
 
                           objectFit:
-                            "cover",
+                            "contain",
 
                           border:
                             "2px solid #fff",

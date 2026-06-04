@@ -496,40 +496,57 @@ return (
             }}
           >
             <video
-              controls
-              style={{
-                width:
-                  video.type === "short"
-                    ? "380px"
-                    : "100%",
+  controls
+  playsInline
+  preload="metadata"
+  poster={
+    video.thumbnail
+  }
+  style={{
+    width:
+      video.type ===
+      "short"
+        ? "380px"
+        : "100%",
 
-                maxWidth: "100%",
+    maxWidth:
+      "100%",
 
-                height:
-                  video.type === "short"
-                    ? "78vh"
-                    : "72vh",
+    height:
+      video.type ===
+      "short"
+        ? "80vh"
+        : "auto",
 
-                objectFit: "cover",
+    maxHeight:
+      "78vh",
 
-                borderRadius: "18px",
+    objectFit:
+      video.type ===
+      "short"
+        ? "cover"
+        : "contain",
 
-                background: "#000",
+    borderRadius:
+      "18px",
 
-                border:
-                  "1px solid #272727",
+    background:
+      "#000",
 
-                boxShadow:
-                  "0 0 20px rgba(0,0,0,0.35)",
-              }}
-            >
-              <source
-                src={
-                  video.videoUrl
-                }
-                type="video/mp4"
-              />
-            </video>
+    border:
+      "1px solid #272727",
+
+    boxShadow:
+      "0 0 20px rgba(0,0,0,0.35)",
+  }}
+>
+  <source
+    src={
+      video.videoUrl?.trim()
+    }
+    type="video/mp4"
+  />
+</video>
           </div>
 
           {/* Title */}
@@ -1105,22 +1122,23 @@ return (
                   }}
                 >
                   <img
-                    src={
-                      item.thumbnail
-                    }
-                    alt=""
-                    style={{
-                      width: "170px",
-
-                      height: "96px",
-
-                      objectFit: "cover",
-
-                      borderRadius: "12px",
-
-                      flexShrink: 0,
-                    }}
-                  />
+  src={
+    item.thumbnail ||
+    "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1000"
+  }
+  alt=""
+  onError={(e) => {
+    e.target.src =
+      "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1000";
+  }}
+  style={{
+    width: "170px",
+    height: "96px",
+    objectFit: "cover",
+    borderRadius: "12px",
+    flexShrink: 0,
+  }}
+/>
 
                   <div
                     style={{

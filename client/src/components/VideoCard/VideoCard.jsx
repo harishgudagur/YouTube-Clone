@@ -14,20 +14,27 @@ function VideoCard({ video }) {
     <Link
       to={`/video/${video._id}`}
       style={{
-        textDecoration: "none",
+        textDecoration:
+          "none",
         color: "#fff",
       }}
     >
       <div
         style={{
-          cursor: "pointer",
-          transition: "0.25s ease",
+          cursor:
+            "pointer",
+          transition:
+            "0.25s ease",
         }}
-        onMouseEnter={(e) => {
+        onMouseEnter={(
+          e
+        ) => {
           e.currentTarget.style.transform =
             "translateY(-4px)";
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={(
+          e
+        ) => {
           e.currentTarget.style.transform =
             "translateY(0px)";
         }}
@@ -36,23 +43,40 @@ function VideoCard({ video }) {
         <div
           style={{
             width: "100%",
-            aspectRatio: "16/9",
-            borderRadius: "18px",
-            overflow: "hidden",
-            background: "#1a1a1a",
+            height:
+              "220px",
+            borderRadius:
+              "18px",
+            overflow:
+              "hidden",
+            background:
+              "#111",
+            border:
+              "1px solid #272727",
           }}
         >
           <img
-            src={thumbnail}
-            alt={video.title}
-            onError={(e) => {
+            src={
+              thumbnail
+            }
+            alt={
+              video.title
+            }
+            onError={(
+              e
+            ) => {
               e.target.src =
                 "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1000";
             }}
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              width:
+                "100%",
+              height:
+                "100%",
+              objectFit:
+                "contain",
+              background:
+                "#111",
             }}
           />
         </div>
@@ -60,71 +84,122 @@ function VideoCard({ video }) {
         {/* Info */}
         <div
           style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: "14px",
+            display:
+              "flex",
+            gap:
+              "12px",
+            marginTop:
+              "14px",
           }}
         >
           {/* Profile */}
           <img
-            src={profilePic}
+            src={
+              profilePic
+            }
             alt="profile"
-            onError={(e) => {
+            onError={(
+              e
+            ) => {
               e.target.src =
                 "https://cdn-icons-png.flaticon.com/512/149/149071.png";
             }}
             style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "1px solid #2a2a2a",
+              width:
+                "44px",
+              height:
+                "44px",
+              borderRadius:
+                "50%",
+              objectFit:
+                "cover",
+              border:
+                "1px solid #2a2a2a",
+              flexShrink: 0,
             }}
           />
 
-          <div style={{ flex: 1 }}>
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             <h3
               style={{
                 margin: 0,
-                fontSize: "16px",
-                fontWeight: "600",
-                lineHeight: "1.4",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                fontSize:
+                  "16px",
+                fontWeight:
+                  "600",
+                lineHeight:
+                  "1.4",
+                display:
+                  "-webkit-box",
+                WebkitLineClamp:
+                  2,
+                WebkitBoxOrient:
+                  "vertical",
+                overflow:
+                  "hidden",
+                color:
+                  "#fff",
               }}
             >
-              {video.title}
+              {
+                video.title
+              }
             </h3>
 
             <p
               style={{
-                margin: "6px 0 0",
-                color: "#aaa",
-                fontSize: "14px",
+                margin:
+                  "7px 0 0",
+                color:
+                  "#aaa",
+                fontSize:
+                  "14px",
               }}
             >
-              {video?.userId?.username ||
+              {video
+                ?.userId
+                ?.username ||
                 "Unknown Channel"}
             </p>
 
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: "#aaa",
-                fontSize: "13px",
-                marginTop: "4px",
+                display:
+                  "flex",
+                alignItems:
+                  "center",
+                gap:
+                  "6px",
+                color:
+                  "#aaa",
+                fontSize:
+                  "13px",
+                marginTop:
+                  "5px",
+                flexWrap:
+                  "wrap",
               }}
             >
-              <FaEye size={12} />
+              <FaEye
+                size={
+                  12
+                }
+              />
+
               <span>
-                {video.views || 0} views
+                {video.views ||
+                  0}{" "}
+                views
               </span>
 
-              <span>•</span>
+              <span>
+                •
+              </span>
 
               <span>
                 {new Date(
