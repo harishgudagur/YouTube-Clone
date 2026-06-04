@@ -22,6 +22,7 @@ const storage =
           req,
           file
         ) => {
+          // Video Upload
           if (
             file.fieldname ===
             "video"
@@ -31,32 +32,20 @@ const storage =
                 "youtube-clone/videos",
 
               resource_type:
-                "video",
+                "auto",
 
-              allowed_formats:
-                [
-                  "mp4",
-                  "mov",
-                  "webm",
-                  "mkv",
-                ],
+              format:
+                "mp4",
             };
           }
 
+          // Images
           return {
             folder:
               "youtube-clone/images",
 
             resource_type:
               "image",
-
-            allowed_formats:
-              [
-                "png",
-                "jpg",
-                "jpeg",
-                "webp",
-              ],
           };
         },
     }
@@ -84,30 +73,36 @@ const fileFilter =
         "video/quicktime",
       ];
 
+    // Thumbnail/Profile
     if (
-      file.fieldname ===
-        "thumbnail" ||
-      file.fieldname ===
-        "profilePic"
+      [
+        "thumbnail",
+        "profilePic",
+      ].includes(
+        file.fieldname
+      )
     ) {
       if (
         allowedImageTypes.includes(
           file.mimetype
         )
       ) {
-        cb(
+        return cb(
           null,
           true
         );
-      } else {
-        cb(
-          new Error(
-            "Only image files allowed"
-          ),
-          false
-        );
       }
-    } else if (
+
+      return cb(
+        new Error(
+          "Only image files allowed"
+        ),
+        false
+      );
+    }
+
+    // Video
+    if (
       file.fieldname ===
       "video"
     ) {
@@ -116,24 +111,24 @@ const fileFilter =
           file.mimetype
         )
       ) {
-        cb(
+        return cb(
           null,
           true
         );
-      } else {
-        cb(
-          new Error(
-            "Only video files allowed"
-          ),
-          false
-        );
       }
-    } else {
-      cb(
-        null,
-        true
+
+      return cb(
+        new Error(
+          "Only video files allowed"
+        ),
+        false
       );
     }
+
+    cb(
+      null,
+      true
+    );
   };
 
 const upload =

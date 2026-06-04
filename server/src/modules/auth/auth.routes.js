@@ -1,29 +1,47 @@
-const express = require("express");
+const express =
+  require(
+    "express"
+  );
 
-const router = express.Router();
+const router =
+  express.Router();
 
 const {
-  sendEmailOTP,
-  sendPhoneOTP,
-  verifyOTP,
   signup,
   login,
-  forgotPassword,
-  resetPassword,
-  refreshToken,
-  logout,
-  getCurrentUser,
-} = require("./auth.controller");
+  profile,
+  oauthLogin,
+} = require(
+  "./auth.controller"
+);
 
-const protect = require("../../middlewares/auth.middleware");
+const authMiddleware =
+  require(
+    "../../middlewares/auth.middleware"
+  );
 
 // Public Routes
+router.post(
+  "/signup",
+  signup
+);
 
-router.post("/signup", signup);
-router.post("/login", login);
-router.post("/logout", logout);
+router.post(
+  "/login",
+  login
+);
 
-// Protected Routes
-router.get("/me", protect, getCurrentUser);
+router.post(
+  "/oauth-login",
+  oauthLogin
+);
 
-module.exports = router;
+// Protected Route
+router.get(
+  "/profile",
+  authMiddleware,
+  profile
+);
+
+module.exports =
+  router;
