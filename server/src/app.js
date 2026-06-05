@@ -62,19 +62,76 @@ app.use(
   )
 );
 
+/* CORS FIX */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
+    origin: function (
+      origin,
+      callback
+    ) {
+      const allowedOrigins =
+        [
+          "http://localhost:5173",
 
-      "https://you-tube-clone-delta-tan.vercel.app",
+          "https://you-tube-clone-delta-tan.vercel.app",
+        ];
 
-      "https://you-tube-clone-qp9j1kvez-harishgudagurs-projects.vercel.app",
+      // allow localhost
+      if (!origin) {
+        return callback(
+          null,
+          true
+        );
+      }
 
-      "https://you-tube-clone-enzarplln-harishgudagurs-projects.vercel.app",
+      // allow fixed domains
+      if (
+        allowedOrigins.includes(
+          origin
+        )
+      ) {
+        return callback(
+          null,
+          true
+        );
+      }
+
+      // allow ALL vercel preview URLs
+      if (
+        origin.includes(
+          "vercel.app"
+        )
+      ) {
+        return callback(
+          null,
+          true
+        );
+      }
+
+      return callback(
+        new Error(
+          "Not allowed by CORS"
+        )
+      );
+    },
+
+    credentials:
+      true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
     ],
 
-    credentials: true,
+    allowedHeaders:
+      [
+        "Content-Type",
+        "Authorization",
+      ],
   })
 );
 
@@ -86,8 +143,10 @@ app.use(
   helmet({
     crossOriginResourcePolicy:
       false,
+
     crossOriginOpenerPolicy:
       false,
+
     crossOriginEmbedderPolicy:
       false,
   })
@@ -153,6 +212,7 @@ app.use(
     ).json({
       success:
         false,
+
       message:
         err.message ||
         "Server Error",
