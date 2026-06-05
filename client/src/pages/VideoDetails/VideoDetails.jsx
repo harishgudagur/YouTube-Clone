@@ -485,77 +485,72 @@ return (
             minWidth: 0,
           }}
         >
-          {/* Video */}
-          <div
-            style={{
-              display:
-                "flex",
-
-              justifyContent:
-                "center",
-            }}
-          >
-            <video
-  controls
-  playsInline
-  preload="metadata"
-  poster={
-    video.thumbnail
-  }
+{/* Video */}
+<div
   style={{
-    width:
-      video.type ===
-      "short"
-        ? "380px"
-        : "100%",
-
-    maxWidth:
-      "100%",
-
-    height:
-      video.type ===
-      "short"
-        ? "80vh"
-        : "auto",
-
-    maxHeight:
-      "78vh",
-
-    objectFit:
-      video.type ===
-      "short"
-        ? "cover"
-        : "contain",
-
-    borderRadius:
-      "18px",
-
-    background:
-      "#000",
-
-    border:
-      "1px solid #272727",
-
-    boxShadow:
-      "0 0 20px rgba(0,0,0,0.35)",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "20px",
   }}
 >
-  <source
-    src={
-      video.videoUrl?.trim()
-    }
-    type="video/mp4"
-  />
-</video>
-          </div>
+  <div
+    style={{
+      width:
+        video.type === "short"
+          ? "380px"
+          : "100%",
+      maxWidth: "1000px",
+
+      aspectRatio:
+        video.type === "short"
+          ? "9 / 16"
+          : "16 / 9",
+
+      background: "#000",
+      borderRadius: "18px",
+      overflow: "hidden",
+
+      border:
+        "1px solid #272727",
+
+      boxShadow:
+        "0 10px 30px rgba(0,0,0,0.35)",
+    }}
+  >
+    <video
+      controls
+      playsInline
+      preload="metadata"
+      poster={video.thumbnail}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit:
+          video.type === "short"
+            ? "cover"
+            : "contain",
+
+        background: "#000",
+      }}
+    >
+      <source
+        src={video.videoUrl?.trim()}
+        type="video/mp4"
+      />
+    </video>
+  </div>
+</div>
 
           {/* Title */}
           <h1
             style={{
-              marginTop:
-                "20px",
-              fontSize:
-                "30px",
+              marginTop: "18px",
+              marginBottom: "12px",
+              fontSize: "28px",
+              fontWeight: "700",
+              color: "#fff",
+              lineHeight: "1.4",
             }}
           >
             {
@@ -719,9 +714,9 @@ return (
             >
               <img
                 src={
-                  video?.userId
-                    ?.profilePic ||
-                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  video?.userId?.profilePic?.trim()
+                    ? video.userId.profilePic
+                    : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                 }
                 alt=""
                 style={{
@@ -1077,7 +1072,7 @@ return (
         <div
           style={{
             width: "100%",
-            maxWidth: "380px",
+            maxWidth: "400px",
 
             position: "sticky",
             top: "90px",
