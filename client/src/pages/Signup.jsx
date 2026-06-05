@@ -1,295 +1,623 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import OTPVerification from './OTPVerification';
-import axios from 'axios';
+import React, {
+  useState,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+  FcGoogle,
+} from "react-icons/fc";
+
+import {
+  FaGithub,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 
 const Signup = () => {
-  const [step, setStep] = useState(1); // 1: info, 2: otp, 3: password
-  const [authType, setAuthType] = useState('email'); // email or phone
-  const [formData, setFormData] = useState({
-    email: '',
-    phone: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    confirmPassword: '',
+  const navigate =
+    useNavigate();
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
+
+  const [
+    formData,
+    setFormData,
+  ] = useState({
+    fullName:
+      "",
+    email:
+      "",
+    password:
+      "",
+    confirmPassword:
+      "",
   });
-  const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const API_URL =
+    import.meta.env
+      .VITE_API_URL ||
+    "http://localhost:5000/api";
 
-  // Handle input change
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleInputChange =
+    (e) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-  // Step 1: Send OTP
-  const handleSendOTP = async (e) => {
-    if (e) e.preventDefault();
-    setError('');
-    setLoading(true);
+      setFormData(
+        (
+          prev
+        ) => ({
+          ...prev,
+          [name]:
+            value,
+        })
+      );
+    };
 
-    try {
-      const identifier = authType === 'email' ? formData.email : formData.phone;
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault();
 
-      if (!identifier) {
-        setError(`Please enter your ${authType}`);
-        setLoading(false);
+      setError(
+        ""
+      );
+
+      if (
+        formData.password !==
+        formData.confirmPassword
+      ) {
+        setError(
+          "Passwords do not match"
+        );
         return;
       }
 
-      const endpoint = authType === 'email' ? '/auth/send-email-otp' : '/auth/send-phone-otp';
-      const payload = authType === 'email' ? { email: identifier } : { phone: identifier };
-
-      // withCredentials: true ensures cross-origin cookies work correctly
-      const response = await axios.post(`${API_URL}${endpoint}`, payload, { withCredentials: true });
-
-      if (response.data.success) {
-        setStep(2);
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 2: Verify OTP
-  const handleVerifyOTP = async () => {
-    setError('');
-    setLoading(true);
-
-    try {
-      if (!otp || otp.length !== 6) {
-        setError('Please enter a valid 6-digit OTP');
-        setLoading(false);
+      if (
+        formData.password
+          .length < 6
+      ) {
+        setError(
+          "Password must be at least 6 characters"
+        );
         return;
       }
 
-      const identifier = authType === 'email' ? formData.email : formData.phone;
+      setLoading(
+        true
+      );
 
-      const response = await axios.post(`${API_URL}/auth/verify-otp`, {
-        identifier,
-        otp,
-        otpType: 'signup',
-      }, { withCredentials: true });
+      try {
+        const response =
+          await axios.post(
+            `${API_URL}/auth/signup`,
+            {
+              email:
+                formData.email,
+              fullName:
+                formData.fullName,
+              password:
+                formData.password,
+            }
+          );
 
-      if (response.data.success) {
-        setStep(3);
-        setOtp('');
+        if (
+          response
+            .data
+            .success
+        ) {
+          localStorage.setItem(
+            "token",
+            response
+              .data
+              .token
+          );
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(
+              response
+                .data
+                .user
+            )
+          );
+
+          navigate(
+            "/"
+          );
+        }
+      } catch (
+        err
+      ) {
+        setError(
+          err
+            .response
+            ?.data
+            ?.message ||
+            "Signup failed"
+        );
+      } finally {
+        setLoading(
+          false
+        );
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to verify OTP');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 3: Create Account
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        setLoading(false);
-        return;
-      }
-
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters');
-        setLoading(false);
-        return;
-      }
-
-      const signupData = {
-        email: formData.email,
-        phone: formData.phone || null,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        otpVerified: true,
-      };
-
-      const response = await axios.post(`${API_URL}/auth/signup`, signupData, { withCredentials: true });
-
-      if (response.data.success) {
-        // Standardize key name as 'token' to match ProtectedRoute.jsx and api.js
-        localStorage.setItem('token', response.data.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(response.data.data.user));
-
-        // Redirect to home
-        navigate('/');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create account');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-red-600">YouTube</h1>
-          <p className="text-gray-400 mt-2">Create your account</p>
+    <div
+      style={{
+        minHeight:
+          "100vh",
+        background:
+          "#0f0f0f",
+        display:
+          "flex",
+        justifyContent:
+          "center",
+        alignItems:
+          "center",
+        padding:
+          "20px",
+      }}
+    >
+      <div
+        style={{
+          width:
+            "100%",
+          maxWidth:
+            "460px",
+          background:
+            "#181818",
+          borderRadius:
+            "20px",
+          padding:
+            "40px 32px",
+          boxShadow:
+            "0 0 25px rgba(255,0,0,0.12)",
+          border:
+            "1px solid #272727",
+        }}
+      >
+        {/* Logo */}
+        <div
+          style={{
+            textAlign:
+              "center",
+            marginBottom:
+              "30px",
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+            alt="logo"
+            style={{
+              width:
+                "120px",
+              marginBottom:
+                "10px",
+            }}
+          />
+
+          <h1
+            style={{
+              color:
+                "#fff",
+              fontSize:
+                "34px",
+              fontWeight:
+                "700",
+              marginBottom:
+                "6px",
+            }}
+          >
+            Create Account
+          </h1>
+
+          <p
+            style={{
+              color:
+                "#aaa",
+            }}
+          >
+            Join YouTube
+            today
+          </p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="mb-4 p-4 bg-red-500 bg-opacity-20 border border-red-500 rounded text-red-200">
+          <div
+            style={{
+              background:
+                "#3b1212",
+              color:
+                "#ffb4b4",
+              padding:
+                "12px",
+              borderRadius:
+                "10px",
+              marginBottom:
+                "18px",
+              textAlign:
+                "center",
+            }}
+          >
             {error}
           </div>
         )}
 
-        {/* Step 1: Email/Phone Input */}
-        {step === 1 && (
-          <form onSubmit={handleSendOTP} className="space-y-4">
-            {/* Auth Type Selection */}
-            <div className="flex gap-4 mb-6">
-              <button
-                type="button"
-                onClick={() => setAuthType('email')}
-                className={`flex-1 py-2 px-4 rounded ${
-                  authType === 'email'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-700 text-gray-300'
-                }`}
-              >
-                Email
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthType('phone')}
-                className={`flex-1 py-2 px-4 rounded ${
-                  authType === 'phone'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-700 text-gray-300'
-                }`}
-              >
-                Phone
-              </button>
-            </div>
-
-            {authType === 'email' ? (
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
-                required
-              />
-            ) : (
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Enter your phone number"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
-                required
-              />
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 disabled:opacity-50"
-            >
-              {loading ? 'Sending OTP...' : 'Send OTP'}
-            </button>
-
-            <p className="text-center text-gray-400 text-sm">
-              Already have an account?{' '}
-              <Link to="/login" className="text-red-600 hover:underline">
-                Sign In
-              </Link>
-            </p>
-          </form>
-        )}
-
-        {/* Step 2: OTP Verification */}
-        {step === 2 && (
-          <OTPVerification
-            identifier={authType === 'email' ? formData.email : formData.phone}
-            authType={authType}
-            otp={otp}
-            setOtp={setOtp}
-            loading={loading}
-            onVerify={handleVerifyOTP}
-            onResend={handleSendOTP}
+        {/* OAuth */}
+        <button
+          type="button"
+          style={{
+            width:
+              "100%",
+            background:
+              "#fff",
+            border:
+              "none",
+            borderRadius:
+              "14px",
+            padding:
+              "14px",
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "center",
+            gap:
+              "10px",
+            cursor:
+              "pointer",
+            fontWeight:
+              "600",
+            marginBottom:
+              "14px",
+          }}
+        >
+          <FcGoogle
+            size={
+              22
+            }
           />
-        )}
+          Continue with
+          Google
+        </button>
 
-        {/* Step 3: Password & Details */}
-        {step === 3 && (
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className="px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
-                required
-              />
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className="px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
-                required
-              />
-            </div>
+        <button
+          type="button"
+          style={{
+            width:
+              "100%",
+            background:
+              "#000",
+            color:
+              "#fff",
+            border:
+              "1px solid #333",
+            borderRadius:
+              "14px",
+            padding:
+              "14px",
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "center",
+            gap:
+              "10px",
+            cursor:
+              "pointer",
+            fontWeight:
+              "600",
+          }}
+        >
+          <FaGithub
+            size={
+              20
+            }
+          />
+          Continue with
+          GitHub
+        </button>
 
+        {/* Divider */}
+        <div
+          style={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            margin:
+              "28px 0",
+            color:
+              "#666",
+          }}
+        >
+          <div
+            style={{
+              flex:
+                1,
+              height:
+                "1px",
+              background:
+                "#333",
+            }}
+          />
+
+          <span
+            style={{
+              padding:
+                "0 14px",
+            }}
+          >
+            OR
+          </span>
+
+          <div
+            style={{
+              flex:
+                1,
+              height:
+                "1px",
+              background:
+                "#333",
+            }}
+          />
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={
+            handleSubmit
+          }
+        >
+          <input
+            type="text"
+            name="fullName"
+            placeholder="Full Name"
+            value={
+              formData.fullName
+            }
+            onChange={
+              handleInputChange
+            }
+            required
+            style={inputStyle}
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={
+              formData.email
+            }
+            onChange={
+              handleInputChange
+            }
+            required
+            style={{
+              ...inputStyle,
+              marginTop:
+                "14px",
+            }}
+          />
+
+          <div
+            style={{
+              position:
+                "relative",
+              marginTop:
+                "14px",
+            }}
+          >
             <input
-              type="password"
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               name="password"
-              placeholder="Password (min. 6 characters)"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
+              placeholder="Password"
+              value={
+                formData.password
+              }
+              onChange={
+                handleInputChange
+              }
               required
+              style={
+                inputStyle
+              }
             />
 
+            <span
+              onClick={() =>
+                setShowPassword(
+                  !showPassword
+                )
+              }
+              style={
+                eyeStyle
+              }
+            >
+              {showPassword ? (
+                <FaEyeSlash />
+              ) : (
+                <FaEye />
+              )}
+            </span>
+          </div>
+
+          <div
+            style={{
+              position:
+                "relative",
+              marginTop:
+                "14px",
+            }}
+          >
             <input
-              type="password"
+              type={
+                showConfirmPassword
+                  ? "text"
+                  : "password"
+              }
               name="confirmPassword"
               placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
+              value={
+                formData.confirmPassword
+              }
+              onChange={
+                handleInputChange
+              }
               required
+              style={
+                inputStyle
+              }
             />
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 disabled:opacity-50"
+            <span
+              onClick={() =>
+                setShowConfirmPassword(
+                  !showConfirmPassword
+                )
+              }
+              style={
+                eyeStyle
+              }
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
-        )}
+              {showConfirmPassword ? (
+                <FaEyeSlash />
+              ) : (
+                <FaEye />
+              )}
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={
+              loading
+            }
+            style={{
+              width:
+                "100%",
+              marginTop:
+                "22px",
+              background:
+                "#ff0000",
+              color:
+                "#fff",
+              border:
+                "none",
+              borderRadius:
+                "14px",
+              padding:
+                "16px",
+              fontSize:
+                "16px",
+              fontWeight:
+                "700",
+              cursor:
+                "pointer",
+            }}
+          >
+            {loading
+              ? "Creating..."
+              : "Create Account"}
+          </button>
+        </form>
+
+        <p
+          style={{
+            textAlign:
+              "center",
+            marginTop:
+              "24px",
+            color:
+              "#aaa",
+          }}
+        >
+          Already have
+          an account?{" "}
+          <Link
+            to="/login"
+            style={{
+              color:
+                "#ff0000",
+              textDecoration:
+                "none",
+              fontWeight:
+                "600",
+            }}
+          >
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );
 };
+
+const inputStyle =
+  {
+    width:
+      "100%",
+    padding:
+      "16px",
+    borderRadius:
+      "14px",
+    border:
+      "1px solid #333",
+    background:
+      "#222",
+    color:
+      "#fff",
+    outline:
+      "none",
+  };
+
+const eyeStyle =
+  {
+    position:
+      "absolute",
+    right:
+      "16px",
+    top:
+      "18px",
+    color:
+      "#888",
+    cursor:
+      "pointer",
+  };
 
 export default Signup;

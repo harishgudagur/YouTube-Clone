@@ -1,108 +1,545 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import React, {
+  useState,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+  FcGoogle,
+} from "react-icons/fc";
+
+import {
+  FaGithub,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    identifier: '',
-    password: '',
+  const navigate =
+    useNavigate();
+
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    formData,
+    setFormData,
+  ] = useState({
+    identifier:
+      "",
+    password:
+      "",
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const API_URL =
+    import.meta.env
+      .VITE_API_URL ||
+    "http://localhost:5000/api";
 
-  // Handle input change
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // Handle input
+  const handleInputChange =
+    (e) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+      setFormData(
+        (
+          prev
+        ) => ({
+          ...prev,
+          [name]:
+            value,
+        })
+      );
+    };
 
-    try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        identifier: formData.identifier,
-        password: formData.password
-      }, { withCredentials: true });
+  // Login
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault();
 
-      if (response.data.success) {
-        // Standardize key name as 'token'
-        localStorage.setItem('token', response.data.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      setError(
+        ""
+      );
 
-        navigate('/');
+      setLoading(
+        true
+      );
+
+      try {
+        const response =
+          await axios.post(
+            `${API_URL}/auth/login`,
+            {
+              identifier:
+                formData.identifier,
+              password:
+                formData.password,
+            },
+            {
+              withCredentials:
+                true,
+            }
+          );
+
+        if (
+          response
+            .data
+            .success
+        ) {
+          localStorage.setItem(
+            "token",
+            response
+              .data
+              .data
+              .accessToken
+          );
+
+          localStorage.setItem(
+            "refreshToken",
+            response
+              .data
+              .data
+              .refreshToken
+          );
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(
+              response
+                .data
+                .data
+                .user
+            )
+          );
+
+          navigate(
+            "/"
+          );
+        }
+      } catch (
+        err
+      ) {
+        setError(
+          err
+            .response
+            ?.data
+            ?.message ||
+            "Login failed"
+        );
+      } finally {
+        setLoading(
+          false
+        );
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-red-600">YouTube</h1>
-          <p className="text-gray-400 mt-2">Sign in to your account</p>
+    <div
+      style={{
+        minHeight:
+          "100vh",
+        background:
+          "#0f0f0f",
+        display:
+          "flex",
+        justifyContent:
+          "center",
+        alignItems:
+          "center",
+        padding:
+          "20px",
+      }}
+    >
+      <div
+        style={{
+          width:
+            "100%",
+          maxWidth:
+            "460px",
+          background:
+            "#181818",
+          borderRadius:
+            "20px",
+          padding:
+            "40px 32px",
+          boxShadow:
+            "0 0 25px rgba(255,0,0,0.12)",
+          border:
+            "1px solid #272727",
+        }}
+      >
+        {/* Logo */}
+        <div
+          style={{
+            textAlign:
+              "center",
+            marginBottom:
+              "30px",
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+            alt="logo"
+            style={{
+              width:
+                "120px",
+              marginBottom:
+                "10px",
+            }}
+          />
+
+          <h1
+            style={{
+              color:
+                "#fff",
+              fontSize:
+                "36px",
+              fontWeight:
+                "700",
+              marginBottom:
+                "6px",
+            }}
+          >
+            Welcome Back
+          </h1>
+
+          <p
+            style={{
+              color:
+                "#aaa",
+            }}
+          >
+            Sign in to
+            your account
+          </p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="mb-4 p-4 bg-red-500 bg-opacity-20 border border-red-500 rounded text-red-200">
+          <div
+            style={{
+              background:
+                "#3b1212",
+              color:
+                "#ffb4b4",
+              padding:
+                "12px",
+              borderRadius:
+                "10px",
+              marginBottom:
+                "18px",
+              textAlign:
+                "center",
+            }}
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* OAuth */}
+        <button
+          style={{
+            width:
+              "100%",
+            background:
+              "#fff",
+            border:
+              "none",
+            borderRadius:
+              "14px",
+            padding:
+              "14px",
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "center",
+            gap:
+              "10px",
+            cursor:
+              "pointer",
+            fontWeight:
+              "600",
+            marginBottom:
+              "14px",
+          }}
+        >
+          <FcGoogle
+            size={
+              22
+            }
+          />
+          Continue with
+          Google
+        </button>
+
+        <button
+          style={{
+            width:
+              "100%",
+            background:
+              "#000",
+            color:
+              "#fff",
+            border:
+              "1px solid #333",
+            borderRadius:
+              "14px",
+            padding:
+              "14px",
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "center",
+            gap:
+              "10px",
+            cursor:
+              "pointer",
+            fontWeight:
+              "600",
+          }}
+        >
+          <FaGithub
+            size={
+              20
+            }
+          />
+          Continue with
+          GitHub
+        </button>
+
+        {/* Divider */}
+        <div
+          style={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            margin:
+              "28px 0",
+            color:
+              "#666",
+          }}
+        >
+          <div
+            style={{
+              flex:
+                1,
+              height:
+                "1px",
+              background:
+                "#333",
+            }}
+          />
+
+          <span
+            style={{
+              padding:
+                "0 14px",
+            }}
+          >
+            OR
+          </span>
+
+          <div
+            style={{
+              flex:
+                1,
+              height:
+                "1px",
+              background:
+                "#333",
+            }}
+          />
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={
+            handleSubmit
+          }
+        >
           <input
             type="text"
             name="identifier"
-            placeholder="Email or Phone Number"
-            value={formData.identifier}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
+            placeholder="Email or Username"
+            value={
+              formData.identifier
+            }
+            onChange={
+              handleInputChange
+            }
             required
+            style={{
+              width:
+                "100%",
+              padding:
+                "16px",
+              borderRadius:
+                "14px",
+              border:
+                "1px solid #333",
+              background:
+                "#222",
+              color:
+                "#fff",
+              outline:
+                "none",
+              marginBottom:
+                "16px",
+            }}
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-red-500"
-            required
-          />
+          <div
+            style={{
+              position:
+                "relative",
+            }}
+          >
+            <input
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
+              name="password"
+              placeholder="Password"
+              value={
+                formData.password
+              }
+              onChange={
+                handleInputChange
+              }
+              required
+              style={{
+                width:
+                  "100%",
+                padding:
+                  "16px",
+                borderRadius:
+                  "14px",
+                border:
+                  "1px solid #333",
+                background:
+                  "#222",
+                color:
+                  "#fff",
+                outline:
+                  "none",
+              }}
+            />
+
+            <span
+              onClick={() =>
+                setShowPassword(
+                  !showPassword
+                )
+              }
+              style={{
+                position:
+                  "absolute",
+                right:
+                  "16px",
+                top:
+                  "18px",
+                color:
+                  "#888",
+                cursor:
+                  "pointer",
+              }}
+            >
+              {showPassword ? (
+                <FaEyeSlash />
+              ) : (
+                <FaEye />
+              )}
+            </span>
+          </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 disabled:opacity-50"
+            disabled={
+              loading
+            }
+            style={{
+              width:
+                "100%",
+              marginTop:
+                "22px",
+              background:
+                "#ff0000",
+              color:
+                "#fff",
+              border:
+                "none",
+              borderRadius:
+                "14px",
+              padding:
+                "16px",
+              fontSize:
+                "16px",
+              fontWeight:
+                "700",
+              cursor:
+                "pointer",
+            }}
           >
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading
+              ? "Signing In..."
+              : "Login"}
           </button>
-
-          <div className="flex justify-between items-center text-sm mt-4">
-            <Link to="/forgot-password" className="text-red-500 hover:underline">
-              Forgot Password?
-            </Link>
-            <p className="text-gray-400">
-              New user?{' '}
-              <Link to="/signup" className="text-red-600 hover:underline">
-                Sign Up
-              </Link>
-            </p>
-          </div>
         </form>
+
+        {/* Footer */}
+        <p
+          style={{
+            textAlign:
+              "center",
+            marginTop:
+              "24px",
+            color:
+              "#aaa",
+          }}
+        >
+          Don't have an
+          account?{" "}
+          <Link
+            to="/signup"
+            style={{
+              color:
+                "#ff0000",
+              textDecoration:
+                "none",
+              fontWeight:
+                "600",
+            }}
+          >
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

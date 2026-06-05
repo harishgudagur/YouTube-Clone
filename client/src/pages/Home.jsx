@@ -1,17 +1,11 @@
-
 import {
   useEffect,
   useState,
 } from "react";
 
-import Navbar
-from "../components/Navbar/Navbar";
-
-import Sidebar
-from "../components/Sidebar/Sidebar";
-
-import VideoCard
-from "../components/VideoCard/VideoCard";
+import Navbar from "../components/Navbar/Navbar";
+import Sidebar from "../components/Sidebar/Sidebar";
+import VideoCard from "../components/VideoCard/VideoCard";
 
 import {
   getVideos,
@@ -24,6 +18,11 @@ function Home() {
   ] = useState([]);
 
   const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
     selectedCategory,
     setSelectedCategory,
   ] = useState("All");
@@ -32,7 +31,6 @@ function Home() {
     window.innerWidth <
     768;
 
-  // Categories
   const categories = [
     "All",
     "Music",
@@ -86,10 +84,13 @@ function Home() {
   const fetchVideos =
     async () => {
       try {
+        setLoading(
+          true
+        );
+
         const res =
           await getVideos();
 
-        // Hide Shorts
         const normalVideos =
           res.data.filter(
             (
@@ -108,10 +109,13 @@ function Home() {
         console.log(
           error
         );
+      } finally {
+        setLoading(
+          false
+        );
       }
     };
 
-  // Filter
   const filteredVideos =
     selectedCategory ===
     "All"
@@ -147,89 +151,134 @@ function Home() {
             flex: 1,
             marginLeft:
               isMobile
-                ? "80px"
+                ? "72px"
                 : "240px",
             padding:
-              "95px 28px 28px",
+              isMobile
+                ? "85px 16px 20px"
+                : "85px 28px 30px",
+            transition:
+              "0.3s ease",
           }}
         >
           {/* Categories */}
           <div
             style={{
-              display:
-                "flex",
-              gap:
-                "12px",
-              overflowX:
-                "auto",
-              marginBottom:
-                "30px",
+              position:
+                "sticky",
+              top: "56px",
+              zIndex: 10,
+              background:
+                "#0f0f0f",
               paddingBottom:
-                "8px",
-              scrollbarWidth:
-                "none",
+                "14px",
+              marginBottom:
+                "22px",
             }}
           >
-            {categories.map(
-              (
-                category
-              ) => (
-                <button
-                  key={
-                    category
-                  }
-                  onClick={() =>
-                    setSelectedCategory(
+            <div
+              style={{
+                display:
+                  "flex",
+                gap:
+                  "12px",
+                overflowX:
+                  "auto",
+                scrollbarWidth:
+                  "none",
+                WebkitOverflowScrolling:
+                  "touch",
+              }}
+            >
+              {categories.map(
+                (
+                  category
+                ) => (
+                  <button
+                    key={
                       category
-                    )
-                  }
-                  style={{
-                    border:
-                      "none",
-                    padding:
-                      "10px 18px",
-                    borderRadius:
-                      "12px",
-                    background:
-                      selectedCategory ===
+                    }
+                    onClick={() =>
+                      setSelectedCategory(
+                        category
+                      )
+                    }
+                    style={{
+                      border:
+                        "none",
+                      padding:
+                        "8px 16px",
+                      borderRadius:
+                        "10px",
+                      background:
+                        selectedCategory ===
+                        category
+                          ? "#fff"
+                          : "#272727",
+                      color:
+                        selectedCategory ===
+                        category
+                          ? "#000"
+                          : "#fff",
+                      fontWeight:
+                        "500",
+                      fontSize:
+                        "14px",
+                      cursor:
+                        "pointer",
+                      whiteSpace:
+                        "nowrap",
+                      transition:
+                        "all 0.2s ease",
+                    }}
+                  >
+                    {
                       category
-                        ? "#fff"
-                        : "#272727",
-                    color:
-                      selectedCategory ===
-                      category
-                        ? "#000"
-                        : "#fff",
-                    fontWeight:
-                      "600",
-                    cursor:
-                      "pointer",
-                    whiteSpace:
-                      "nowrap",
-                    transition:
-                      "0.2s",
-                  }}
-                >
-                  {
-                    category
-                  }
-                </button>
-              )
-            )}
+                    }
+                  </button>
+                )
+              )}
+            </div>
           </div>
 
-          {/* Empty */}
-          {filteredVideos.length ===
-          0 ? (
+          {/* Loading */}
+          {loading ? (
+            <div
+              style={{
+                display:
+                  "flex",
+                justifyContent:
+                  "center",
+                alignItems:
+                  "center",
+                height:
+                  "50vh",
+                color:
+                  "#aaa",
+                fontSize:
+                  "18px",
+              }}
+            >
+              Loading videos...
+            </div>
+          ) : filteredVideos.length ===
+            0 ? (
             <div
               style={{
                 textAlign:
                   "center",
                 marginTop:
-                  "100px",
+                  "120px",
               }}
             >
-              <h2>
+              <h2
+                style={{
+                  fontSize:
+                    "30px",
+                  marginBottom:
+                    "10px",
+                }}
+              >
                 No videos
                 found 😕
               </h2>
@@ -238,6 +287,8 @@ function Home() {
                 style={{
                   color:
                     "#aaa",
+                  fontSize:
+                    "15px",
                 }}
               >
                 Try another
@@ -249,12 +300,16 @@ function Home() {
               style={{
                 display:
                   "grid",
+
                 gridTemplateColumns:
                   isMobile
                     ? "1fr"
                     : "repeat(auto-fill, minmax(340px, 1fr))",
+
                 gap:
-                  "26px",
+                  isMobile
+                    ? "24px"
+                    : "26px",
               }}
             >
               {filteredVideos.map(
