@@ -4,6 +4,9 @@ const API =
   axios.create({
     baseURL:
       "https://youtube-clone-xaye.onrender.com/api",
+
+    withCredentials:
+      true,
   });
 
 API.interceptors.request.use(
