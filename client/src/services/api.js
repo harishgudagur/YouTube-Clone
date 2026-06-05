@@ -46,6 +46,9 @@ export const uploadVideo =
           "Content-Type":
             "multipart/form-data",
         },
+
+        timeout:
+          300000,
       }
     );
 

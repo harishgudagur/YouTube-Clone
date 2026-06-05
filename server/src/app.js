@@ -15,9 +15,6 @@ const helmet =
 const morgan =
   require("morgan");
 
-const path =
-  require("path");
-
 const videoRoutes =
   require(
     "./modules/video/video.routes"
@@ -43,7 +40,6 @@ const userRoutes =
     "./modules/user/user.routes"
   );
 
-// CREATE APP FIRST
 const app =
   express();
 
@@ -51,7 +47,7 @@ const app =
 app.use(
   express.json({
     limit:
-      "500mb",
+      "100mb",
   })
 );
 
@@ -61,7 +57,7 @@ app.use(
       extended:
         true,
       limit:
-        "500mb",
+        "100mb",
     }
   )
 );
@@ -73,6 +69,7 @@ app.use(
       "https://you-tube-clone-delta-tan.vercel.app",
       "https://you-tube-clone-enzarplln-harishgudagurs-projects.vercel.app",
     ],
+
     credentials:
       true,
   })
@@ -85,6 +82,10 @@ app.use(
 app.use(
   helmet({
     crossOriginResourcePolicy:
+      false,
+    crossOriginOpenerPolicy:
+      false,
+    crossOriginEmbedderPolicy:
       false,
   })
 );
@@ -119,7 +120,7 @@ app.use(
   userRoutes
 );
 
-/* Health route */
+/* Root */
 app.get(
   "/",
   (
@@ -129,6 +130,30 @@ app.get(
     res.send(
       "YouTube Clone API Running..."
     );
+  }
+);
+
+/* Global Error Handler */
+app.use(
+  (
+    err,
+    req,
+    res,
+    next
+  ) => {
+    console.error(
+      err
+    );
+
+    res.status(
+      500
+    ).json({
+      success:
+        false,
+      message:
+        err.message ||
+        "Server Error",
+    });
   }
 );
 

@@ -22,7 +22,7 @@ const storage =
           req,
           file
         ) => {
-          // Video Upload
+          // VIDEO
           if (
             file.fieldname ===
             "video"
@@ -32,20 +32,23 @@ const storage =
                 "youtube-clone/videos",
 
               resource_type:
-                "auto",
+                "video",
 
-              format:
-                "mp4",
+              public_id:
+                `${Date.now()}-video`,
             };
           }
 
-          // Images
+          // IMAGES
           return {
             folder:
               "youtube-clone/images",
 
             resource_type:
               "image",
+
+            public_id:
+              `${Date.now()}-image`,
           };
         },
     }
@@ -138,9 +141,9 @@ const upload =
 
     limits: {
       fileSize:
-        500 *
+        100 *
         1024 *
-        1024,
+        1024, // 100MB
     },
   });
 
