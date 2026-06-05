@@ -66,12 +66,15 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+
       "https://you-tube-clone-delta-tan.vercel.app",
+
+      "https://you-tube-clone-qp9j1kvez-harishgudagurs-projects.vercel.app",
+
       "https://you-tube-clone-enzarplln-harishgudagurs-projects.vercel.app",
     ],
 
-    credentials:
-      true,
+    credentials: true,
   })
 );
 
