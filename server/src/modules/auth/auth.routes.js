@@ -1,7 +1,5 @@
 const express =
-  require(
-    "express"
-  );
+  require("express");
 
 const router =
   express.Router();
@@ -9,18 +7,20 @@ const router =
 const {
   signup,
   login,
-  profile,
-  oauthLogin,
+  logout,
+  getCurrentUser,
+  googleAuth,
+  githubAuth,
 } = require(
   "./auth.controller"
 );
 
-const authMiddleware =
+const protect =
   require(
     "../../middlewares/auth.middleware"
   );
 
-// Public Routes
+// Normal auth
 router.post(
   "/signup",
   signup
@@ -32,15 +32,26 @@ router.post(
 );
 
 router.post(
-  "/oauth-login",
-  oauthLogin
+  "/logout",
+  logout
 );
 
-// Protected Route
+// OAuth routes
+router.post(
+  "/google",
+  googleAuth
+);
+
+router.post(
+  "/github",
+  githubAuth
+);
+
+// Current user
 router.get(
-  "/profile",
-  authMiddleware,
-  profile
+  "/me",
+  protect,
+  getCurrentUser
 );
 
 module.exports =

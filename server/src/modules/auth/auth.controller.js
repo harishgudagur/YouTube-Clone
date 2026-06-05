@@ -22,7 +22,9 @@ const generateToken =
     );
   };
 
-// Signup
+// ==================
+// SIGNUP
+// ==================
 const signup =
   async (
     req,
@@ -34,6 +36,20 @@ const signup =
         password,
         fullName,
       } = req.body;
+
+      if (
+        !email ||
+        !password
+      ) {
+        return res
+          .status(400)
+          .json({
+            success:
+              false,
+            message:
+              "Email and password are required",
+          });
+      }
 
       const existingUser =
         await User.findOne(
@@ -66,10 +82,13 @@ const signup =
           {
             email:
               email.toLowerCase(),
+
             password,
+
             fullName:
               fullName ||
               username,
+
             username,
           }
         );
@@ -105,7 +124,9 @@ const signup =
     }
   };
 
-// Login
+// ==================
+// LOGIN
+// ==================
 const login =
   async (
     req,
@@ -116,6 +137,20 @@ const login =
         email,
         password,
       } = req.body;
+
+      if (
+        !email ||
+        !password
+      ) {
+        return res
+          .status(400)
+          .json({
+            success:
+              false,
+            message:
+              "Email and password are required",
+          });
+      }
 
       const user =
         await User.findOne(
@@ -189,7 +224,105 @@ const login =
     }
   };
 
-// Profile
+// ==================
+// OAUTH LOGIN
+// ==================
+const oauthLogin =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        email,
+        fullName,
+        profilePic,
+      } = req.body;
+
+      if (
+        !email
+      ) {
+        return res
+          .status(400)
+          .json({
+            success:
+              false,
+            message:
+              "Email required",
+          });
+      }
+
+      let user =
+        await User.findOne(
+          {
+            email:
+              email.toLowerCase(),
+          }
+        );
+
+      // Create new user if not exists
+      if (
+        !user
+      ) {
+        const username =
+          email.split(
+            "@"
+          )[0];
+
+        user =
+          await User.create(
+            {
+              email:
+                email.toLowerCase(),
+
+              fullName:
+                fullName ||
+                username,
+
+              username,
+
+              profilePic,
+
+              password:
+                "oauth-user",
+            }
+          );
+      }
+
+      const token =
+        generateToken(
+          user._id
+        );
+
+      res.status(
+        200
+      ).json({
+        success:
+          true,
+        token,
+        user,
+      });
+    } catch (
+      error
+    ) {
+      console.log(
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        success:
+          false,
+        message:
+          error.message,
+      });
+    }
+  };
+
+// ==================
+// PROFILE
+// ==================
 const profile =
   async (
     req,
@@ -241,82 +374,10 @@ const profile =
     }
   };
 
-// OAuth Login
-const oauthLogin =
-  async (
-    req,
-    res
-  ) => {
-    try {
-      const {
-        email,
-        fullName,
-        profilePic,
-      } = req.body;
-
-      let user =
-        await User.findOne(
-          {
-            email,
-          }
-        );
-
-      if (
-        !user
-      ) {
-        const username =
-          email.split(
-            "@"
-          )[0];
-
-        user =
-          await User.create(
-            {
-              email,
-              fullName,
-              username,
-              profilePic,
-              password:
-                "oauth-user",
-            }
-          );
-      }
-
-      const token =
-        generateToken(
-          user._id
-        );
-
-      res.status(
-        200
-      ).json({
-        success:
-          true,
-        token,
-        user,
-      });
-    } catch (
-      error
-    ) {
-      console.log(
-        error
-      );
-
-      res.status(
-        500
-      ).json({
-        success:
-          false,
-        message:
-          error.message,
-      });
-    }
-  };
-
 module.exports =
   {
     signup,
     login,
-    profile,
     oauthLogin,
+    profile,
   };
