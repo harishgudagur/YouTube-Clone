@@ -1,16 +1,9 @@
 const express =
   require("express");
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://you-tube-clone-delta-tan.vercel.app",
-      "https://you-tube-clone-enzarplln-harishgudagurs-projects.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+const cors =
+  require("cors");
+
 const cookieParser =
   require(
     "cookie-parser"
@@ -50,6 +43,7 @@ const userRoutes =
     "./modules/user/user.routes"
   );
 
+// CREATE APP FIRST
 const app =
   express();
 
@@ -74,8 +68,13 @@ app.use(
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, "") : "http://localhost:5173",
-    credentials: true,
+    origin: [
+      "http://localhost:5173",
+      "https://you-tube-clone-delta-tan.vercel.app",
+      "https://you-tube-clone-enzarplln-harishgudagurs-projects.vercel.app",
+    ],
+    credentials:
+      true,
   })
 );
 
@@ -92,17 +91,6 @@ app.use(
 
 app.use(
   morgan("dev")
-);
-
-/* Serve uploads */
-app.use(
-  "/uploads",
-  express.static(
-    path.join(
-      process.cwd(),
-      "uploads"
-    )
-  )
 );
 
 /* Routes */
