@@ -161,99 +161,196 @@
 //     userSchema
 //   );
 
+const mongoose =
+  require("mongoose");
 
-const mongoose = require("mongoose");
+const bcrypt =
+  require("bcryptjs");
 
-const userSchema = new mongoose.Schema(
-  {
-    fullName: {
-      type: String,
-      required: [true, "Full name is required"],
-      trim: true,
-    },
-
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: true,
-      trim: true,
-      lowercase: true, // Ensures consistency in URLs (e.g., /channel/john vs /channel/John)
-    },
-
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      trim: true,
-      lowercase: true, // Standardizes emails to lowercase
-    },
-
-    phone: {
-      type: String,
-      unique: true,
-      sparse: true, // Correctly handles optional unique fields
-      trim: true,
-    },
-
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-    },
-
-    profilePic: {
-      type: String,
-      default: "",
-    },
-
-    // People who subscribed to me
-    subscribers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+const userSchema =
+  new mongoose.Schema(
+    {
+      fullName: {
+        type: String,
+        required: true,
+        trim: true,
       },
-    ],
 
-    // Channels I subscribed to
-    subscribedChannels: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+      username: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
       },
-    ],
 
-    // Watch history
-    watchHistory: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Video",
+      email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
       },
-    ],
 
-    /* 
-       NOTE: For a small project, this nested array is fine.
-       For a production app, move this to its own 'Notification' Model.
-    */
-    notifications: [
-      {
-        message: { type: String },
-        videoId: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
-        channelId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        isRead: { type: Boolean, default: false },
-        createdAt: { type: Date, default: Date.now },
+      phone: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
       },
-    ],
 
-    isVerified: {
-      type: Boolean,
-      default: false,
+      password: {
+        type: String,
+        required: true,
+        select: false,
+      },
+
+      profilePic: {
+        type: String,
+        default: "",
+      },
+
+      subscribers: [
+        {
+          type:
+            mongoose
+              .Schema
+              .Types
+              .ObjectId,
+          ref: "User",
+        },
+      ],
+
+      subscribedChannels:
+        [
+          {
+            type:
+              mongoose
+                .Schema
+                .Types
+                .ObjectId,
+            ref:
+              "User",
+          },
+        ],
+
+      watchHistory:
+        [
+          {
+            type:
+              mongoose
+                .Schema
+                .Types
+                .ObjectId,
+            ref:
+              "Video",
+          },
+        ],
+
+      notifications:
+        [
+          {
+            message:
+              String,
+
+            videoId:
+              {
+                type:
+                  mongoose
+                    .Schema
+                    .Types
+                    .ObjectId,
+                ref:
+                  "Video",
+              },
+
+            channelId:
+              {
+                type:
+                  mongoose
+                    .Schema
+                    .Types
+                    .ObjectId,
+                ref:
+                  "User",
+              },
+
+            isRead:
+              {
+                type:
+                  Boolean,
+                default:
+                  false,
+              },
+
+            createdAt:
+              {
+                type:
+                  Date,
+                default:
+                  Date.now,
+              },
+          },
+        ],
+
+      isVerified:
+        {
+          type:
+            Boolean,
+          default:
+            false,
+        },
     },
-  },
-  {
-    timestamps: true,
+    {
+      timestamps:
+        true,
+    }
+  );
+
+// Hash password
+userSchema.pre(
+  "save",
+  async function (
+    next
+  ) {
+    if (
+      !this.isModified(
+        "password"
+      )
+    ) {
+      return next();
+    }
+
+    const salt =
+      await bcrypt.genSalt(
+        10
+      );
+
+    this.password =
+      await bcrypt.hash(
+        this.password,
+        salt
+      );
+
+    next();
   }
 );
 
-// Indexing for fast lookups
-userSchema.index({ username: 1, email: 1 });
+// Match password
+userSchema.methods.matchPassword =
+  async function (
+    enteredPassword
+  ) {
+    return await bcrypt.compare(
+      enteredPassword,
+      this.password
+    );
+  };
 
-module.exports = mongoose.models.User || mongoose.model("User", userSchema);
+module.exports =
+  mongoose.models
+    .User ||
+  mongoose.model(
+    "User",
+    userSchema
+  );

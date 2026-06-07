@@ -1,4 +1,3 @@
-
 const express =
   require("express");
 
@@ -38,14 +37,15 @@ router.get(
   getSubscriptionsFeed
 );
 
-// Use uploadImages for the profile picture update
+// Update Profile
 router.put(
   "/update-profile",
   authMiddleware,
-  uploadImages.single("profilePic"),
+  upload.single(
+    "profilePic"
+  ),
   updateProfile
 );
-
 
 // Get Channel
 router.get(
