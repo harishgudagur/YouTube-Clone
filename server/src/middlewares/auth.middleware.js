@@ -98,7 +98,7 @@ const jwt =
 
 const User =
   require(
-    "../modules/user/user.model"
+    "../user/user.model"
   );
 
 const protect =
