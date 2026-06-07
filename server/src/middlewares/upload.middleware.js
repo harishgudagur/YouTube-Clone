@@ -149,69 +149,94 @@
 
 // module.exports =
 //   upload;
-
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../config/cloudinary");
-const fs = require("fs");
 const path = require("path");
 
-// 1. Storage for IMAGES (Direct to Cloudinary)
-const imageStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "youtube-clone/images",
-    resource_type: "image",
+// Local disk storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      Date.now() +
+        "-" +
+        Math.round(Math.random() * 1e9) +
+        path.extname(file.originalname)
+    );
   },
 });
 
-// 2. Storage for VIDEOS (Temporary Disk Storage)
-// We save to disk first so we can launder/stream the 1GB file 
-// to the cloud without crashing the server's RAM.
-const videoStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = "uploads/";
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath);
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
+// File filter
 const fileFilter = (req, file, cb) => {
-  const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-  const allowedVideoTypes = ["video/mp4", "video/webm", "video/mkv", "video/quicktime"];
+  const allowedVideoTypes = [
+    "video/mp4",
+    "video/webm",
+    "video/mkv",
+    "video/quicktime",
+  ];
 
-  if (["thumbnail", "profilePic"].includes(file.fieldname)) {
-    if (allowedImageTypes.includes(file.mimetype)) return cb(null, true);
-    return cb(new Error("Only image files allowed"), false);
+  const allowedImageTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+  ];
+
+  // Video
+  if (file.fieldname === "video") {
+    if (
+      allowedVideoTypes.includes(
+        file.mimetype
+      )
+    ) {
+      return cb(null, true);
+    }
+
+    return cb(
+      new Error(
+        "Only video files allowed"
+      ),
+      false
+    );
   }
 
-  if (file.fieldname === "video") {
-    if (allowedVideoTypes.includes(file.mimetype)) return cb(null, true);
-    return cb(new Error("Only video files allowed"), false);
+  // Thumbnail/Profile
+  if (
+    ["thumbnail", "profilePic"].includes(
+      file.fieldname
+    )
+  ) {
+    if (
+      allowedImageTypes.includes(
+        file.mimetype
+      )
+    ) {
+      return cb(null, true);
+    }
+
+    return cb(
+      new Error(
+        "Only image files allowed"
+      ),
+      false
+    );
   }
 
   cb(null, true);
 };
 
-// Create separate Multer instances for Images and Videos
-const uploadImages = multer({ 
-  storage: imageStorage, 
-  fileFilter, 
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit for images
+// Multer instance
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize:
+      1024 * 1024 * 1024, // 1GB
+  },
 });
 
-const uploadVideos = multer({ 
-  storage: videoStorage, 
-  fileFilter, 
-  limits: { fileSize: 1024 * 1024 * 1024 } // 1 GB Limit
-});
-
-module.exports = {
-  uploadImages,
-  uploadVideos,
-};
+// IMPORTANT
+module.exports = upload;
