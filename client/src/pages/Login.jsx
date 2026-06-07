@@ -69,9 +69,14 @@ const Login = () => {
 
     try {
       const res = await API.post(
-        "/auth/login",
-        formData
-      );
+  "/auth/login",
+  {
+    identifier:
+      formData.email,
+    password:
+      formData.password,
+  }
+);
 
       // Store token and user
       localStorage.setItem("token", res.data.token);
