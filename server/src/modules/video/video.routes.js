@@ -4,7 +4,7 @@ const express =
 const router =
   express.Router();
 
-const upload =
+const { uploadVideos } =
   require(
     "../../middlewares/upload.middleware"
   );
