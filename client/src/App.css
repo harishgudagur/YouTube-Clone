@@ -1,21 +1,53 @@
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 0;      /* Redundant - already set in * */
+  padding: 0;     /* Redundant - already set in * */
   overflow-x: hidden;
   background: #0f0f0f;
 }
 
 body {
-  background: #0f0f0f;
+  background: #0f0f0f;  /* Redundant - already set above */
   font-family: Arial, sans-serif;
+}
+
+/* ✅ CORRECT - Organized, no duplicates */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  background-color: #0f0f0f;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Roboto", sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

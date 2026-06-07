@@ -1,179 +1,351 @@
 import {
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import toast from "react-hot-toast";
 
-import Home
-from "./pages/Home";
+// Lazy load pages for code splitting
+const Home = lazy(() =>
+  import("./pages/Home")
+);
+const Login = lazy(() =>
+  import("./pages/Login")
+);
+const Signup = lazy(() =>
+  import("./pages/Signup")
+);
+const ForgotPassword = lazy(() =>
+  import("./pages/ForgotPassword")
+);
+const ResetPassword = lazy(() =>
+  import("./pages/ResetPassword")
+);
+const UploadVideo = lazy(() =>
+  import("./pages/UploadVideo/UploadVideo")
+);
+const VideoDetails = lazy(() =>
+  import("./pages/VideoDetails/VideoDetails")
+);
+const Search = lazy(() =>
+  import("./pages/Search/Search")
+);
+const Profile = lazy(() =>
+  import("./pages/Profile/Profile")
+);
+const History = lazy(() =>
+  import("./pages/History/History")
+);
+const Subscriptions = lazy(() =>
+  import("./pages/Subscriptions/Subscriptions")
+);
+const Channel = lazy(() =>
+  import("./pages/Channel/Channel")
+);
+const Shorts = lazy(() =>
+  import("./pages/Shorts/Shorts")
+);
+const Trending = lazy(() =>
+  import("./pages/Trending/Trending")
+);
+const Library = lazy(() =>
+  import("./pages/Library/Library")
+);
+const WatchLater = lazy(() =>
+  import("./pages/WatchLater/WatchLater")
+);
+const LikedVideos = lazy(() =>
+  import("./pages/LikedVideos/LikedVideos")
+);
+const NotFound = lazy(() =>
+  import("./pages/NotFound/NotFound")
+);
 
-import Login
-from "./pages/Login";
+/**
+ * Loading Fallback Component
+ * Shown while lazy-loaded components are loading
+ */
+const LoadingFallback = () => (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      background: "#0f0f0f",
+      color: "#fff",
+      flexDirection: "column",
+      gap: "20px",
+    }}
+  >
+    <div
+      style={{
+        animation: "spin 1s linear infinite",
+        fontSize: "40px",
+      }}
+    >
+      ⏳
+    </div>
+    <p style={{ fontSize: "16px" }}>Loading...</p>
+    <style>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `}</style>
+  </div>
+);
 
-import Signup
-from "./pages/Signup";
+/**
+ * Protected Route Component
+ * Checks if user is authenticated before allowing access
+ */
+const ProtectedRoute = ({ element }) => {
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
 
-import ForgotPassword
-from "./pages/ForgotPassword";
+  if (!token || !user) {
+    // Show error and redirect to login
+    toast.error("Please login to continue");
+    return <Navigate to="/login" replace />;
+  }
 
-import ResetPassword
-from "./pages/ResetPassword";
+  return element;
+};
 
-import UploadVideo
-from "./pages/UploadVideo/UploadVideo";
+/**
+ * Auth Route Component
+ * Redirects to home if user is already authenticated
+ */
+const AuthRoute = ({ element }) => {
+  const token = localStorage.getItem("token");
 
-import VideoDetails
-from "./pages/VideoDetails/VideoDetails";
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
 
-import Search
-from "./pages/Search/Search";
+  return element;
+};
 
-import Profile
-from "./pages/Profile/Profile";
+/**
+ * Error Boundary Component
+ * Catches component errors and displays fallback UI
+ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-import History
-from "./pages/History/History";
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      error: error,
+    };
+  }
 
-import Subscriptions
-from "./pages/Subscriptions/Subscriptions";
+  componentDidCatch(error, errorInfo) {
+    console.error("Error caught by boundary:", error, errorInfo);
+    toast.error("Something went wrong. Please refresh the page.");
+  }
 
-import Channel
-from "./pages/Channel/Channel";
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            background: "#0f0f0f",
+            color: "#fff",
+            flexDirection: "column",
+            gap: "20px",
+            textAlign: "center",
+            padding: "20px",
+          }}
+        >
+          <div style={{ fontSize: "60px" }}>
+            ⚠️
+          </div>
+          <h1 style={{ fontSize: "30px" }}>
+            Oops! Something went wrong
+          </h1>
+          <p style={{ color: "#aaa", maxWidth: "500px" }}>
+            {this.state.error?.message ||
+              "An unexpected error occurred"}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: "10px 24px",
+              backgroundColor: "#ff6b6b",
+              color: "#fff",
+              border: "none",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              marginTop: "20px",
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
 
-import Shorts
-from "./pages/Shorts/Shorts";
+    return this.props.children;
+  }
+}
 
-import Trending
-from "./pages/Trending/Trending";
-
-// NEW
-import Library
-from "./pages/Library/Library";
-
-import WatchLater
-from "./pages/WatchLater/WatchLater";
-
-import LikedVideos
-from "./pages/LikedVideos/LikedVideos";
-
+/**
+ * Main App Component with Routing
+ */
 function App() {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-         <Home />
-        }
-      />
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          {/* PUBLIC ROUTES */}
+          {/* Home */}
+          <Route path="/" element={<Home />} />
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      <Route
-        path="/signup"
-        element={<Signup />}
-      />
-
-      <Route
-        path="/forgot-password"
-        element={<ForgotPassword />}
-      />
-
-      <Route
-        path="/reset-password/:token"
-        element={<ResetPassword />}
-      />
-
-      <Route
-        path="/upload"
-        element={
-          <UploadVideo />
-        }
-      />
-
-      <Route
-        path="/video/:id"
-        element={
-          <VideoDetails
-            key={
-              window.location.pathname
+          {/* Auth Routes (Redirect if already logged in) */}
+          <Route
+            path="/login"
+            element={
+              <AuthRoute element={<Login />} />
             }
           />
-        }
-      />
 
-      <Route
-        path="/search/:query"
-        element={
-          <Search />
-        }
-      />
+          <Route
+            path="/signup"
+            element={
+              <AuthRoute element={<Signup />} />
+            }
+          />
 
-      <Route
-        path="/profile"
-        element={
-          <Profile />
-        }
-      />
+          <Route
+            path="/forgot-password"
+            element={
+              <AuthRoute
+                element={<ForgotPassword />}
+              />
+            }
+          />
 
-      <Route
-        path="/history"
-        element={
-          <History />
-        }
-      />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <AuthRoute
+                element={<ResetPassword />}
+              />
+            }
+          />
 
-      <Route
-        path="/subscriptions"
-        element={
-          <Subscriptions />
-        }
-      />
+          {/* Public Content Routes */}
+          <Route
+            path="/video/:id"
+            element={<VideoDetails />}
+          />
 
-      <Route
-        path="/channel/:id"
-        element={
-          <Channel />
-        }
-      />
+          <Route
+            path="/search/:query"
+            element={<Search />}
+          />
 
-      <Route
-        path="/shorts"
-        element={
-          <Shorts />
-        }
-      />
+          <Route
+            path="/channel/:id"
+            element={<Channel />}
+          />
 
-      <Route
-        path="/trending"
-        element={
-          <Trending />
-        }
-      />
+          <Route
+            path="/shorts"
+            element={<Shorts />}
+          />
 
-      {/* NEW */}
-      <Route
-        path="/library"
-        element={
-          <Library />
-        }
-      />
+          <Route
+            path="/trending"
+            element={<Trending />}
+          />
 
-      <Route
-        path="/watch-later"
-        element={
-          <WatchLater />
-        }
-      />
+          {/* PROTECTED ROUTES (Require Authentication) */}
+          {/* User Profile Routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute
+                element={<Profile />}
+              />
+            }
+          />
 
-      <Route
-        path="/liked"
-        element={
-          <LikedVideos />
-        }
-      />
-    </Routes>
+          {/* User Content Routes */}
+          <Route
+            path="/upload"
+            element={
+              <ProtectedRoute
+                element={<UploadVideo />}
+              />
+            }
+          />
+
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute
+                element={<History />}
+              />
+            }
+          />
+
+          <Route
+            path="/subscriptions"
+            element={
+              <ProtectedRoute
+                element={<Subscriptions />}
+              />
+            }
+          />
+
+          <Route
+            path="/library"
+            element={
+              <ProtectedRoute
+                element={<Library />}
+              />
+            }
+          />
+
+          <Route
+            path="/watch-later"
+            element={
+              <ProtectedRoute
+                element={<WatchLater />}
+              />
+            }
+          />
+
+          <Route
+            path="/liked"
+            element={
+              <ProtectedRoute
+                element={<LikedVideos />}
+              />
+            }
+          />
+
+          {/* 404 NOT FOUND - MUST BE LAST */}
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

@@ -1,224 +1,225 @@
-const express =
-  require("express");
+// const express =
+//   require("express");
 
-const cors =
-  require("cors");
+// const cors =
+//   require("cors");
 
-const cookieParser =
-  require(
-    "cookie-parser"
-  );
+// const cookieParser =
+//   require(
+//     "cookie-parser"
+//   );
 
-const helmet =
-  require("helmet");
+// const helmet =
+//   require("helmet");
 
-const morgan =
-  require("morgan");
+// const morgan =
+//   require("morgan");
 
-const videoRoutes =
-  require(
-    "./modules/video/video.routes"
-  );
+// const videoRoutes =
+//   require(
+//     "./modules/video/video.routes"
+//   );
 
-const authRoutes =
-  require(
-    "./modules/auth/auth.routes"
-  );
+// const authRoutes =
+//   require(
+//     "./modules/auth/auth.routes"
+//   );
 
-const commentRoutes =
-  require(
-    "./modules/comment/comment.routes"
-  );
+// const commentRoutes =
+//   require(
+//     "./modules/comment/comment.routes"
+//   );
 
-const historyRoutes =
-  require(
-    "./modules/history/history.routes"
-  );
+// const historyRoutes =
+//   require(
+//     "./modules/history/history.routes"
+//   );
 
-const userRoutes =
-  require(
-    "./modules/user/user.routes"
-  );
+// const userRoutes =
+//   require(
+//     "./modules/user/user.routes"
+//   );
 
-const app =
-  express();
+// const app =
+//   express();
 
-/* Middleware */
-app.use(
-  express.json({
-    limit:
-      "100mb",
-  })
-);
+// /* Middleware */
+// app.use(
+//   express.json({
+//     limit:
+//       "100mb",
+//   })
+// );
 
-app.use(
-  express.urlencoded(
-    {
-      extended:
-        true,
-      limit:
-        "100mb",
-    }
-  )
-);
+// app.use(
+//   express.urlencoded(
+//     {
+//       extended:
+//         true,
+//       limit:
+//         "100mb",
+//     }
+//   )
+// );
 
-/* CORS FIX */
-app.use(
-  cors({
-    origin: function (
-      origin,
-      callback
-    ) {
-      const allowedOrigins =
-        [
-          "http://localhost:5173",
+// /* CORS FIX */
+// app.use(
+//   cors({
+//     origin: function (
+//       origin,
+//       callback
+//     ) {
+//       const allowedOrigins =
+//         [
+//           "http://localhost:5173",
 
-          "https://you-tube-clone-delta-tan.vercel.app",
-        ];
+//           "https://you-tube-clone-delta-tan.vercel.app",
+//         ];
 
-      // allow localhost
-      if (!origin) {
-        return callback(
-          null,
-          true
-        );
-      }
+//       // allow localhost
+//       if (!origin) {
+//         return callback(
+//           null,
+//           true
+//         );
+//       }
 
-      // allow fixed domains
-      if (
-        allowedOrigins.includes(
-          origin
-        )
-      ) {
-        return callback(
-          null,
-          true
-        );
-      }
+//       // allow fixed domains
+//       if (
+//         allowedOrigins.includes(
+//           origin
+//         )
+//       ) {
+//         return callback(
+//           null,
+//           true
+//         );
+//       }
 
-      // allow ALL vercel preview URLs
-      if (
-        origin.includes(
-          "vercel.app"
-        )
-      ) {
-        return callback(
-          null,
-          true
-        );
-      }
+//       // allow ALL vercel preview URLs
+//       if (
+//         origin.includes(
+//           "vercel.app"
+//         )
+//       ) {
+//         return callback(
+//           null,
+//           true
+//         );
+//       }
 
-      return callback(
-        new Error(
-          "Not allowed by CORS"
-        )
-      );
-    },
+//       return callback(
+//         new Error(
+//           "Not allowed by CORS"
+//         )
+//       );
+//     },
 
-    credentials:
-      true,
+//     credentials:
+//       true,
 
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+//     methods: [
+//       "GET",
+//       "POST",
+//       "PUT",
+//       "PATCH",
+//       "DELETE",
+//       "OPTIONS",
+//     ],
 
-    allowedHeaders:
-      [
-        "Content-Type",
-        "Authorization",
-      ],
-  })
-);
+//     allowedHeaders:
+//       [
+//         "Content-Type",
+//         "Authorization",
+//       ],
+//   })
+// );
 
-app.use(
-  cookieParser()
-);
+// app.use(
+//   cookieParser()
+// );
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy:
-      false,
+// app.use(
+//   helmet({
+//     crossOriginResourcePolicy:
+//       false,
 
-    crossOriginOpenerPolicy:
-      false,
+//     crossOriginOpenerPolicy:
+//       false,
 
-    crossOriginEmbedderPolicy:
-      false,
-  })
-);
+//     crossOriginEmbedderPolicy:
+//       false,
+//   })
+// );
 
-app.use(
-  morgan("dev")
-);
+// app.use(
+//   morgan("dev")
+// );
 
-/* Routes */
-app.use(
-  "/api/auth",
-  authRoutes
-);
+// /* Routes */
+// app.use(
+//   "/api/auth",
+//   authRoutes
+// );
 
-app.use(
-  "/api/video",
-  videoRoutes
-);
+// app.use(
+//   "/api/video",
+//   videoRoutes
+// );
 
-app.use(
-  "/api/comment",
-  commentRoutes
-);
+// app.use(
+//   "/api/comment",
+//   commentRoutes
+// );
 
-app.use(
-  "/api/history",
-  historyRoutes
-);
+// app.use(
+//   "/api/history",
+//   historyRoutes
+// );
 
-app.use(
-  "/api/user",
-  userRoutes
-);
+// app.use(
+//   "/api/user",
+//   userRoutes
+// );
 
-/* Root */
-app.get(
-  "/",
-  (
-    req,
-    res
-  ) => {
-    res.send(
-      "YouTube Clone API Running..."
-    );
-  }
-);
+// /* Root */
+// app.get(
+//   "/",
+//   (
+//     req,
+//     res
+//   ) => {
+//     res.send(
+//       "YouTube Clone API Running..."
+//     );
+//   }
+// );
 
-/* Global Error Handler */
-app.use(
-  (
-    err,
-    req,
-    res,
-    next
-  ) => {
-    console.error(
-      err
-    );
+// /* Global Error Handler */
+// app.use(
+//   (
+//     err,
+//     req,
+//     res,
+//     next
+//   ) => {
+//     console.error(
+//       err
+//     );
 
-    res.status(
-      500
-    ).json({
-      success:
-        false,
+//     res.status(
+//       500
+//     ).json({
+//       success:
+//         false,
 
-      message:
-        err.message ||
-        "Server Error",
-    });
-  }
-);
+//       message:
+//         err.message ||
+//         "Server Error",
+//     });
+//   }
+// );
 
-module.exports =
-  app;
+// module.exports =
+//   app;
+

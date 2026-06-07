@@ -4,15 +4,23 @@ const otpSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: false, // Optional for phone OTP
+      trim: true,
+      lowercase: true,
+      required: function() { 
+        return !this.phone; // Required if phone is missing
+      },
     },
     phone: {
       type: String,
-      required: false, // Optional for email OTP
+      trim: true,
+      required: function() { 
+        return !this.email; // Required if email is missing
+      },
     },
     otp: {
       type: String,
-      required: true,
+      required: [true, "OTP code is required"],
+      index: true, // Optimized for the verification check
     },
     type: {
       type: String,
@@ -34,10 +42,11 @@ const otpSchema = new mongoose.Schema(
   }
 );
 
-// Add TTL index for automatic expiration deletion
+// 1. TTL INDEX: Automatically deletes the document when expiresAt is reached
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-module.exports = mongoose.model(
-  "OTP",
-  otpSchema
-);
+// 2. COMPOUND INDEX: Makes the verification process (email + otp) lightning fast
+otpSchema.index({ email: 1, otp: 1 });
+otpSchema.index({ phone: 1, otp: 1 });
+
+module.exports = mongoose.models.OTP || mongoose.model("OTP", otpSchema);

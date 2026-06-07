@@ -30,24 +30,17 @@ const authMiddleware =
     "../../middlewares/auth.middleware"
   );
 
-// Upload video
+// Use uploadVideos for the video upload route
 router.post(
   "/upload",
   authMiddleware,
-  upload.fields([
-    {
-      name:
-        "video",
-      maxCount: 1,
-    },
-    {
-      name:
-        "thumbnail",
-      maxCount: 1,
-    },
+  uploadVideos.fields([
+    { name: "video", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
   ]),
   uploadVideo
 );
+
 
 // Get all videos
 router.get(

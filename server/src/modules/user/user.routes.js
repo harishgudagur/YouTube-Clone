@@ -38,15 +38,14 @@ router.get(
   getSubscriptionsFeed
 );
 
-// Update Profile
+// Use uploadImages for the profile picture update
 router.put(
   "/update-profile",
   authMiddleware,
-  upload.single(
-    "profilePic"
-  ),
+  uploadImages.single("profilePic"),
   updateProfile
 );
+
 
 // Get Channel
 router.get(
