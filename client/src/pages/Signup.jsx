@@ -144,7 +144,7 @@ const Signup = () => {
               handleChange
             }
             required
-            className="w-full rounded-2xl border px-5 py-4 bg-transparent outline-none text-lg"
+            className="w-full rounded-2xl border border-gray-300 px-5 py-4 bg-white text-black placeholder-gray-400 outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg"
           />
 
           <input

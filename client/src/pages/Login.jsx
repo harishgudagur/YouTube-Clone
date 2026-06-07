@@ -109,11 +109,11 @@ const Login = () => {
           />
         </div>
 
-        <h1 className="text-5xl font-bold text-center">
+        <h1 className="text-5xl font-bold text-center text-black">
           Welcome Back
         </h1>
 
-        <p className="text-center text-gray-500 mt-3 mb-8 text-lg">
+        <p className="text-center text-gray-600 mt-3 mb-8 text-lg">
           Login to continue
         </p>
 
@@ -129,7 +129,7 @@ const Login = () => {
 
         <div className="flex items-center my-8">
           <div className="flex-1 border-t"></div>
-          <span className="px-5 text-gray-500 text-xl">
+          <span className="px-5 text-gray-600 text-xl">
             OR
           </span>
           <div className="flex-1 border-t"></div>
@@ -156,7 +156,7 @@ const Login = () => {
             onChange={
               handleChange
             }
-            className="w-full rounded-2xl border px-5 py-4 text-lg outline-none"
+            className="w-full rounded-2xl border border-gray-300 px-5 py-4 shadow-xl text-black placeholder-gray-400 outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg"
           />
 
           <div className="relative">
@@ -175,7 +175,7 @@ const Login = () => {
               onChange={
                 handleChange
               }
-              className="w-full rounded-2xl border px-5 py-4 text-lg outline-none"
+              className="w-full rounded-2xl border border-gray-300 px-5 py-4 shadow-xl text-black placeholder-gray-400 outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg"
             />
 
             <button
