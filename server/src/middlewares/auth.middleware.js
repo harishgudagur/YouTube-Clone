@@ -91,106 +91,79 @@
 
 // module.exports = protect;
 
+const jwt =
+  require(
+    "jsonwebtoken"
+  );
 
-const jwt = require("jsonwebtoken");
-const User = require("../modules/user/user.model");
+const User =
+  require(
+    "../modules/user/user.model"
+  );
 
-// ==========================================
-// PROTECT: Main Authentication Guard
-// ==========================================
-const protect = async (req, res, next) => {
-  try {
-    let token;
+const protect =
+  async (
+    req,
+    res,
+    next
+  ) => {
+    try {
+      let token;
 
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized, token missing",
-      });
-    }
-
-    // 1. Verify the token structure and signature
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 2. THE FIX: Verify the user still exists in the database
-    // This prevents "Zombie Users" (deleted users with valid tokens) from accessing the app
-    const user = await User.findById(decoded.id).select("-password");
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User no longer exists",
-      });
-    }
-
-    // Attach both the decoded token and the full user object to the request
-    req.user = user; 
-    req.userId = user._id;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
-  }
-};
-
-// ==========================================
-// OPTIONAL AUTH: For Hybrid Pages
-// ==========================================
-const optionalAuth = async (req, res, next) => {
-  try {
-    let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id).select("-password");
-      if (user) {
-        req.user = user;
-        req.userId = user._id;
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith(
+          "Bearer"
+        )
+      ) {
+        token =
+          req.headers.authorization.split(
+            " "
+          )[1];
       }
-    }
-    next();
-  } catch (error) {
-    // We don't throw error here because this is optional
-    next();
-  }
-};
 
-// ==========================================
-// AUTHORIZE: Role-Based Access Control (RBAC)
-// ==========================================
-const authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized",
-      });
-    }
+      if (!token) {
+        return res
+          .status(401)
+          .json({
+            success:
+              false,
+            message:
+              "Not authorized, no token",
+          });
+      }
 
-    // NOTE: Ensure your User model has a 'role' field (e.g., 'user', 'admin')
-    if (roles && !roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied: Insufficient permissions",
-      });
-    }
+      const decoded =
+        jwt.verify(
+          token,
+          process.env.JWT_SECRET
+        );
 
-    next();
+      req.user =
+        await User.findById(
+          decoded.id
+        ).select(
+          "-password"
+        );
+
+      next();
+    } catch (
+      error
+    ) {
+      console.log(
+        error
+      );
+
+      return res
+        .status(401)
+        .json({
+          success:
+            false,
+          message:
+            "Not authorized",
+        });
+    }
   };
-};
 
-// Standard Professional Export Pattern
-module.exports = {
-  protect,
-  optionalAuth,
-  authorize,
-};
+module.exports =
+  protect;
