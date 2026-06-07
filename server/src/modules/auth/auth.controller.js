@@ -383,7 +383,7 @@
 //   };
 
 const jwt = require("jsonwebtoken");
-const User = require("./user.model");
+const User = require("./user/user.model");
 const crypto = require("crypto"); // Built-in Node module for random strings
 
 // Generate JWT
