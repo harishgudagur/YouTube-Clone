@@ -93,7 +93,7 @@
 
 
 const jwt = require("jsonwebtoken");
-const User = require("../user/user.model");
+const User = require("../modules/user/user.model");
 
 // ==========================================
 // PROTECT: Main Authentication Guard
