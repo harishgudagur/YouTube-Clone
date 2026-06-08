@@ -364,7 +364,7 @@
 // export default Navbar;
 
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaYoutube, FaSearch, FaBell, FaPlus } from "react-icons/fa";
 
